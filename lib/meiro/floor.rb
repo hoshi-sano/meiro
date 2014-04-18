@@ -60,10 +60,11 @@ module Meiro
       @base_map = BaseMap.new(w, h, Tile::Wall)
     end
 
-    def generate_random_room(r_min, r_max, factor, seed)
-      separate_blocks(r_min, r_max, factor, seed)
+    # ランダムで部屋と通路を生成する
+    def generate_random_room(r_min, r_max, factor, randomizer)
+      separate_blocks(r_min, r_max, factor, randomizer)
       all_blocks.each do |block|
-        block.put_room(seed)
+        block.put_room(randomizer)
       end
       # TODO: connect_rooms_by_aisle
       apply_rooms_to_map
@@ -76,8 +77,8 @@ module Meiro
       end
     end
 
-    def separate_blocks(r_min, r_max, factor, seed)
-      arbiter = Random.new(seed)
+    # 設定された部屋数のMIN,MAXの範囲に収まるよう区画をランダムで分割
+    def separate_blocks(r_min, r_max, factor, randomizer)
       new_block = [@root_block]
       try_count = 0
 
@@ -87,7 +88,7 @@ module Meiro
         next_new_block = []
 
         while b = new_block.shift
-          if b.separatable? && do_separate?(b, factor, arbiter)
+          if b.separatable? && do_separate?(b, factor, randomizer)
             b.separate
             separated << b
             next_new_block << b.upper_left
@@ -116,9 +117,9 @@ module Meiro
 
     private
 
-    def do_separate?(block, factor, arbiter)
+    def do_separate?(block, factor, randomizer)
       # Blockが細分化するほど、分割されづらくなる
-      block.generation / factor < arbiter.rand(10)
+      block.generation / factor < randomizer.rand(10)
     end
   end
 end

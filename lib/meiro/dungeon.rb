@@ -34,7 +34,7 @@ module Meiro
       @max_room_width  = config.max_room_width
       @max_room_height = config.max_room_height
       @block_split_factor = config.block_split_factor
-      @random_seed = Time.now.to_i
+      @randomizer = Random.new(Time.now.to_i)
     end
 
     def create_floor
@@ -47,7 +47,7 @@ module Meiro
     def generate_random_floor
       floor = create_floor
       args = [@min_room_number, @max_room_number,
-              @block_split_factor, @random_seed]
+              @block_split_factor, @randomizer]
       floor.generate_random_room(*args)
     end
   end

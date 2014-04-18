@@ -107,12 +107,12 @@ describe Meiro::Floor do
   # 1 を seed にすると rand が
   #   5, 8, 9, 5, 0, 0, 1, 7, 6, 9...
   # の順に返す
-  let(:seed) { 1 }
+  let(:randomizer) { Random.new(1) }
 
   describe '#separate_blocks' do
     subject do
       floor.separate_blocks(min_room_number, max_room_number,
-                            block_split_factor, seed)
+                            block_split_factor, randomizer)
     end
 
     context 'Room数下限:1,上限:6でsplit_factorが1.0の場合' do
@@ -171,10 +171,10 @@ describe Meiro::Floor do
   end
 
   describe '#do_separate?' do
-    let(:arbiter) { Random.new(seed) }
+    let(:randomizer) { Random.new(1) }
     let(:block) { floor.root_block }
 
-    subject { floor.do_separate?(block, block_split_factor, arbiter) }
+    subject { floor.do_separate?(block, block_split_factor, randomizer) }
 
     context 'rootの分割判定' do
       context 'split_factorが1.0、乱数が5を返す場合' do

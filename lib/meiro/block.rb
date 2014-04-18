@@ -76,18 +76,21 @@ module Meiro
       res.flatten
     end
 
-    def put_room(seed=nil, room=nil)
+    # Block内にRoom(部屋)を配置する。
+    # 引数にroomを渡した場合、そのroomが配置される。
+    # 引数にroomを渡さない場合、ランダムに生成された部屋が配置される。
+    def put_room(randomizer=nil, room=nil)
       if room
         return false if !suitable?(room)
         @room = room
       else
-        r = Random.new(seed || Time.now.to_i)
-        rand_w = r.rand(ROOM_MIN_WIDTH..(@width - MARGIN * 2))
-        rand_h = r.rand(ROOM_MIN_HEIGHT..(@height - MARGIN * 2))
+        randomizer ||= Random.new(Time.now.to_i)
+        rand_w = randomizer.rand(ROOM_MIN_WIDTH..(@width - MARGIN * 2))
+        rand_h = randomizer.rand(ROOM_MIN_HEIGHT..(@height - MARGIN * 2))
         @room = Room.new(rand_w, rand_h)
       end
       @room.block = self
-      @room.set_random_coordinate(seed)
+      @room.set_random_coordinate(randomizer)
       true
     end
 

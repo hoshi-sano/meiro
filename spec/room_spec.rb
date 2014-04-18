@@ -184,19 +184,19 @@ describe Meiro::Room do
     end
 
     context 'Blockを紐付けている場合' do
+      let(:randomizer) { Random.new(1) }
+
       subject do
         room.block = block
-        room.set_random_coordinate(seed)
+        room.set_random_coordinate(randomizer)
       end
 
-      context 'seedが1, Blockの幅:60、高さ:40の場合' do
-        let(:seed) { 1 }
+      context '乱数のseedが1, Blockの幅:60、高さ:40の場合' do
         # この条件下では必ず以下の組み合わせになる
         it { should eq([38, 13]) }
       end
 
-      context 'seedが1, Blockの幅:30、高さ:20の場合' do
-        let(:seed) { 1 }
+      context '乱数のseedが1, Blockの幅:30、高さ:20の場合' do
         let(:b_width) { 30 }
         let(:b_height) { 20 }
         # この条件下では必ず以下の組み合わせになる
@@ -206,7 +206,6 @@ describe Meiro::Room do
       context '乱数の幅がないような設定(Blockの幅:12、高さ:7)の場合' do
         let(:width) { 10 }
         let(:height) { 5 }
-        let(:seed) { 1 }
         let(:b_width) { 12 }
         let(:b_height) { 7 }
 

@@ -56,13 +56,13 @@ module Meiro
       @block
     end
 
-    def set_random_coordinate(seed=nil)
+    def set_random_coordinate(randomizer=nil)
       if @block.nil?
         raise "Block is not found"
       else
-        r = Random.new(seed || Time.now.to_i)
-        self.relative_x = r.rand(available_x_min..available_x_max)
-        self.relative_y = r.rand(available_y_min..available_y_max)
+        randomizer ||= Random.new(Time.now.to_i)
+        self.relative_x = randomizer.rand(available_x_min..available_x_max)
+        self.relative_y = randomizer.rand(available_y_min..available_y_max)
       end
       return [@relative_x, @relative_y]
     end

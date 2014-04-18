@@ -135,9 +135,9 @@ describe Meiro::Dungeon do
 
   describe '#generate_random_floor' do
     before do
-      random_seed = dungeon.instance_variable_get(:@random_seed)
+      randomizer = dungeon.instance_variable_get(:@randomizer)
       args = [min_room_number, max_room_number,
-              block_split_factor, random_seed]
+              block_split_factor, randomizer]
       Meiro::Floor.any_instance.
         should_receive(:generate_random_room).once.with(*args)
     end
