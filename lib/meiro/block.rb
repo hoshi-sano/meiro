@@ -8,7 +8,8 @@ module Meiro
                 :upper_left, :lower_right,
                  :partition, :room
 
-    def initialize(x, y, width, height, parent=nil)
+    def initialize(floor, x, y, width, height, parent=nil)
+      @floor = floor
       @x = x
       @y = y
       @width = width
@@ -85,8 +86,12 @@ module Meiro
         @room = room
       else
         randomizer ||= Random.new(Time.now.to_i)
-        rand_w = randomizer.rand(ROOM_MIN_WIDTH..(@width - MARGIN * 2))
-        rand_h = randomizer.rand(ROOM_MIN_HEIGHT..(@height - MARGIN * 2))
+        min_w = @floor.min_room_width
+        min_h = @floor.min_room_height
+        max_w = [@floor.max_room_width, (@width - MARGIN * 2)].min
+        max_h = [@floor.max_room_height, (@height - MARGIN * 2)].min
+        rand_w = randomizer.rand(min_w..max_w)
+        rand_h = randomizer.rand(min_h..max_h)
         @room = Room.new(rand_w, rand_h)
       end
       @room.block = self
@@ -108,9 +113,9 @@ module Meiro
     def horizontal_separate
       c = @height.even? ? 0 : 1
       block_height = (@height - c) / 2
-      @upper_left  = self.class.new(@x, @y,
+      @upper_left  = self.class.new(@floor, @x, @y,
                                     @width, block_height, self)
-      @lower_right = self.class.new(@x, @y + 1 + block_height,
+      @lower_right = self.class.new(@floor, @x, @y + 1 + block_height,
                                     @width, @height - (1 + block_height), self)
       @partition = Partition.new(@x, @y + block_height, @width)
       self
@@ -119,9 +124,9 @@ module Meiro
     def vertical_separate
       c = @width.even? ? 0 : 1
       block_width = (@width - c) / 2
-      @upper_left  = self.class.new(@x, @y,
+      @upper_left  = self.class.new(@floor, @x, @y,
                                     block_width, @height, self)
-      @lower_right = self.class.new(@x + 1 + block_width, @y,
+      @lower_right = self.class.new(@floor, @x + 1 + block_width, @y,
                                     @width - (1 + block_width), @height, self)
       @partition = Partition.new(@x + block_width, @y, @height)
       self

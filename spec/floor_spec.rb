@@ -202,11 +202,11 @@ describe Meiro::Floor do
     end
 
     context '5世代目のBlockの分割判定' do
-      let(:first)  { Meiro::Block.new(0, 0, width, height, nil) }
-      let(:second) { Meiro::Block.new(0, 0, width, height, first) }
-      let(:third)  { Meiro::Block.new(0, 0, width, height, second) }
-      let(:fourth) { Meiro::Block.new(0, 0, width, height, third) }
-      let(:block)  { Meiro::Block.new(0, 0, width, height, fourth) }
+      let(:first)  { Meiro::Block.new(floor, 0, 0, width, height, nil) }
+      let(:second) { Meiro::Block.new(floor, 0, 0, width, height, first) }
+      let(:third)  { Meiro::Block.new(floor, 0, 0, width, height, second) }
+      let(:fourth) { Meiro::Block.new(floor, 0, 0, width, height, third) }
+      let(:block)  { Meiro::Block.new(floor, 0, 0, width, height, fourth) }
 
       context 'split_factorが1.0、乱数が5を返す場合' do
         # block.generation が 5,

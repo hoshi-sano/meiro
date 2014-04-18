@@ -1,6 +1,14 @@
 require 'spec_helper'
 
 describe Meiro::Room do
+  let(:dungeon) { Meiro::Dungeon.new }
+  let(:floor) do
+    args = [dungeon, dungeon.width, dungeon.height,
+            dungeon.min_room_width, dungeon.min_room_height,
+            dungeon.max_room_width, dungeon.max_room_height,]
+    Meiro::Floor.new(*args)
+  end
+
   let(:width) { 10 }
   let(:height) { 5 }
 
@@ -47,7 +55,7 @@ describe Meiro::Room do
   let(:b_width) { 60 }
   let(:b_height) { 40 }
   let(:parent) { nil }
-  let(:block) { Meiro::Block.new(b_x, b_y, b_width, b_height, parent) }
+  let(:block) { Meiro::Block.new(floor, b_x, b_y, b_width, b_height, parent) }
 
   let(:relative_x) { 8 }
   let(:relative_y) { 4 }

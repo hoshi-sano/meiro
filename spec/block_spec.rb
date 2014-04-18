@@ -9,12 +9,20 @@ class Meiro::Block
 end
 
 describe Meiro::Block do
+  let(:dungeon) { Meiro::Dungeon.new }
+  let(:floor) do
+    args = [dungeon, dungeon.width, dungeon.height,
+            dungeon.min_room_width, dungeon.min_room_height,
+            dungeon.max_room_width, dungeon.max_room_height,]
+    Meiro::Floor.new(*args)
+  end
+
   let(:x) { 0 }
   let(:y) { 0 }
   let(:width) { 60 }
   let(:height) { 40 }
   let(:parent) { nil }
-  let(:block) { described_class.new(x, y, width, height, parent) }
+  let(:block) { described_class.new(floor, x, y, width, height, parent) }
 
   shared_examples 'vertical' do
     its(:shape) { should eq(:vertical) }
@@ -32,7 +40,7 @@ describe Meiro::Block do
       its(:height) { height }
     end
 
-    subject { described_class.new(x, y, width, height, parent) }
+    subject { described_class.new(floor, x, y, width, height, parent) }
 
     context 'rootの場合' do
       context '横長の場合' do
@@ -50,7 +58,7 @@ describe Meiro::Block do
     end
 
     context 'parentがいる場合' do
-      let(:parent) { described_class.new(x, y, width, height, nil) }
+      let(:parent) { described_class.new(floor, x, y, width, height, nil) }
 
       context '横長の場合' do
         include_examples 'basic_parameters'
@@ -146,16 +154,16 @@ describe Meiro::Block do
     end
 
     context 'rootを分割したBlockの場合' do
-      let(:parent) { described_class.new(x, y, width, height, nil) }
-      let(:block) { described_class.new(x, y, width, height, parent) }
+      let(:parent) { described_class.new(floor, x, y, width, height, nil) }
+      let(:block) { described_class.new(floor, x, y, width, height, parent) }
 
       it { should eq(2) }
     end
 
     context 'rootを分割したBlockを分割したBlockの場合' do
-      let(:grandparent) { described_class.new(x, y, width, height, nil) }
-      let(:parent) { described_class.new(x, y, width, height, grandparent) }
-      let(:block) { described_class.new(x, y, width, height, parent) }
+      let(:grandparent) { described_class.new(floor, x, y, width, height, nil) }
+      let(:parent) { described_class.new(floor, x, y, width, height, grandparent) }
+      let(:block) { described_class.new(floor, x, y, width, height, parent) }
 
       it { should eq(3) }
     end

@@ -102,6 +102,14 @@ class Meiro::BaseMap
 end
 
 describe Meiro::BaseMap do
+  let(:dungeon) { Meiro::Dungeon.new }
+  let(:floor) do
+    args = [dungeon, dungeon.width, dungeon.height,
+            dungeon.min_room_width, dungeon.min_room_height,
+            dungeon.max_room_width, dungeon.max_room_height,]
+    Meiro::Floor.new(*args)
+  end
+
   let(:width) { 10 }
   let(:height) { 5 }
   let(:wall_klass) { Meiro::Tile::Wall }
@@ -139,7 +147,7 @@ describe Meiro::BaseMap do
     let(:base_map) { described_class.new(width, height, klass_1) }
     let(:width) { 5 }
     let(:heiht) { 5 }
-    let(:block) { Meiro::Block.new(0, 0, 5, 5) }
+    let(:block) { Meiro::Block.new(floor, 0, 0, 5, 5) }
     let(:room) { Meiro::Room.new(3, 3) }
 
     before(:each) do

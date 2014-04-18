@@ -2,7 +2,9 @@ module Meiro
   class Floor
     TRY_SEPARATE_LIMIT = 1000000
 
-    attr_reader :dungeon, :width, :height
+    attr_reader :dungeon, :width, :height,
+                :min_room_width, :min_room_height,
+                :max_room_width, :max_room_height
 
     class Config < Options
       option :width,  Integer, nil, lambda {|w,o| !w.nil? && w >= FLOOR_MIN_WIDTH }
@@ -28,7 +30,7 @@ module Meiro
       @min_room_height = config.min_room_height
       @max_room_width  = config.max_room_width
       @max_room_height = config.max_room_height
-      @root_block = Block.new(0, 0, config.width, config.height)
+      @root_block = Block.new(self, 0, 0, config.width, config.height)
       fill_floor_by_wall(config.width, config.height)
     end
 
