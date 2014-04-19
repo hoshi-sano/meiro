@@ -141,6 +141,45 @@ describe Meiro::BaseMap do
 
   let(:base_map) { described_class.new(width, height, wall_klass) }
 
+  describe '#fill_rect' do
+    let(:klass_1) { class C1; def self.new; 1; end; end; C1 }
+    let(:klass_0) { class C0; def self.new; 0; end; end; C0 }
+    let(:base_map) { described_class.new(width, height, klass_1) }
+    let(:width) { 5 }
+    let(:heiht) { 5 }
+
+    subject do
+      base_map.fill_rect(x1, y1, x2, y2, klass_0)
+      base_map.map
+    end
+
+    context '線形に処理する場合' do
+      let(:x1) { 2 }; let(:y1) { 0 }
+      let(:x2) { 2 }; let(:y2) { 4 }
+
+      it do
+        should eq([[1,1,0,1,1],
+                   [1,1,0,1,1],
+                   [1,1,0,1,1],
+                   [1,1,0,1,1],
+                   [1,1,0,1,1],])
+      end
+    end
+
+    context '正方形に処理する場合' do
+      let(:x1) { 1 }; let(:y1) { 1 }
+      let(:x2) { 3 }; let(:y2) { 3 }
+
+      it do
+        should eq([[1,1,1,1,1],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1],
+                   [1,1,1,1,1],])
+      end
+    end
+  end
+
   describe '#apply_room' do
     let(:klass_1) { class C1; def self.new; 1; end; end; C1 }
     let(:klass_0) { class C0; def self.new; 0; end; end; C0 }

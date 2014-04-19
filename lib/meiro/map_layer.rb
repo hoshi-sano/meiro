@@ -43,6 +43,14 @@ module Meiro
       @map.map! {|line| Array.new(width).map! {|e| proc.call } }
     end
 
+    def fill_rect(x1, y1, x2, y2, klass)
+      (y1..y2).each do |y|
+        (x1..x2).each do |x|
+          self[x, y] = klass.new
+        end
+      end
+    end
+
     def apply_room(room, klass)
       room.each_coordinate do |x, y|
         self[x, y] = klass.new
