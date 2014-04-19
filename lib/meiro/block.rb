@@ -80,12 +80,15 @@ module Meiro
     # Block内にRoom(部屋)を配置する。
     # 引数にroomを渡した場合、そのroomが配置される。
     # 引数にroomを渡さない場合、ランダムに生成された部屋が配置される。
-    def put_room(randomizer=nil, room=nil)
-      if room
+    def put_room(randomizer_or_room=nil)
+      randomizer_or_room ||= Random.new(Time.now.to_i)
+      case randomizer_or_room
+      when Room
+        room = randomizer_or_room
         return false if !suitable?(room)
         @room = room
-      else
-        randomizer ||= Random.new(Time.now.to_i)
+      when Random
+        randomizer = randomizer_or_room
         min_w = @floor.min_room_width
         min_h = @floor.min_room_height
         max_w = [@floor.max_room_width, (@width - MARGIN * 2)].min
@@ -93,6 +96,8 @@ module Meiro
         rand_w = randomizer.rand(min_w..max_w)
         rand_h = randomizer.rand(min_h..max_h)
         @room = Room.new(rand_w, rand_h)
+      else
+        return false
       end
       @room.block = self
       @room.set_random_coordinate(randomizer)

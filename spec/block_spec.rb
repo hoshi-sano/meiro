@@ -169,6 +169,44 @@ describe Meiro::Block do
     end
   end
 
+  describe '#put_room' do
+    subject { block.put_room(randomizer_or_room) }
+
+    context '不正な引数を渡した場合' do
+      let(:randomizer_or_room) { 1 }
+
+      it { should be_false }
+    end
+
+    context '引数にRoomを渡す' do
+      let(:randomizer_or_room) { room }
+
+      context 'RoomがBlockに配置できない大きさだった場合' do
+        let(:room) { Meiro::Room.new(width, height) }
+
+        it { should be_false }
+      end
+
+      context 'RoomがBlockに配置可能な大きさだった場合' do
+        let(:room) { Meiro::Room.new(width - 2, height - 2) }
+
+        it { should be_true }
+      end
+    end
+
+    context '引数に乱数器を渡した場合' do
+      let(:randomizer_or_room) { Random.new(1) }
+
+      it { should be_true }
+    end
+
+    context '引数にnilを渡した場合' do
+      let(:randomizer_or_room) { nil }
+
+      it { should be_true }
+    end
+  end
+
   shared_examples 'separated check' do
     its(:upper_left) { should be_instance_of(described_class) }
     its(:lower_right) { should be_instance_of(described_class) }
