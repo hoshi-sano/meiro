@@ -47,7 +47,7 @@ module Meiro
     end
 
     def all_rooms
-      all_blocks.map{|b| b.room }
+      @all_rooms ||= all_blocks.map{|b| b.room }.compact
     end
 
     def to_s
@@ -68,15 +68,26 @@ module Meiro
       all_blocks.each do |block|
         block.put_room(randomizer)
       end
-      # TODO: connect_rooms_by_aisle
+      connect_rooms(randomizer)
       apply_rooms_to_map
       self
     end
 
+    # このFloorに設置された部屋に対し、互いを通路で結ぶ処理をかける
+    def connect_rooms(randomizer=nil)
+      randomizer ||= Random.new(Time.now.to_i)
+      all_rooms.each do |room|
+        room.create_passage(randomizer)
+      end
+    end
+
+    # このFloorに設置された部屋全てとそれに紐づく通路・出口を@base_map
+    # に反映させる
     def apply_rooms_to_map
       all_rooms.each do |room|
         @base_map.apply_room(room, Tile::Flat)
       end
+      @base_map.apply_passage(all_rooms, Tile::Gate, Tile::Flat)
     end
 
     # 設定された部屋数のMIN,MAXの範囲に収まるよう区画をランダムで分割

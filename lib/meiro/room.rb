@@ -2,6 +2,7 @@ module Meiro
   class Room
     attr_reader :relative_x, :relative_y,
                 :width, :height, :block
+    attr_accessor :connected_rooms, :all_pass
 
     def initialize(width, height)
       if width < ROOM_MIN_WIDTH || height < ROOM_MIN_HEIGHT
@@ -9,6 +10,8 @@ module Meiro
       end
       @width = width
       @height = height
+      @connected_rooms = {}
+      @all_pass = []
     end
 
     def x
@@ -89,6 +92,150 @@ module Meiro
           yield(x + w, y + h)
         end
       end
+    end
+
+    def generation
+      @block.generation if @block
+    end
+
+    def partition
+      @block.partition if @block
+    end
+
+    def brother
+      @block.brother.room if @block && @block.brother
+    end
+
+    def gate_coordinates
+      @connected_rooms.keys
+    end
+
+    def all_connected_rooms
+      @connected_rooms.values
+    end
+
+    def create_passage(randomizer=nil)
+      randomizer ||= Random.new(Time.now.to_i)
+      connectable_rooms.each do |room|
+        create_passage_to(room, randomizer)
+      end
+    end
+
+    # この部屋と通路で接続可能な部屋を返す
+    def connectable_rooms
+      rooms = []
+
+      # 同世代(兄弟)
+      rooms << brother
+
+      if @block.parent && @block.parent.parent
+        # 親世代
+        rooms << @block.parent.parent.upper_left.room
+        rooms << @block.parent.parent.lower_right.room
+        if @block.parent.parent.upper_left.separated?
+          # 同世代
+          rooms << @block.parent.parent.upper_left.upper_left.room
+          rooms << @block.parent.parent.upper_left.lower_right.room
+        end
+        if @block.parent.parent.lower_right.separated?
+          # 同世代
+          rooms << @block.parent.parent.lower_right.upper_left.room
+          rooms << @block.parent.parent.lower_right.lower_right.room
+        end
+      end
+
+      rooms.delete(self)
+      rooms.compact.uniq
+    end
+
+    # 接続対象の部屋との仕切り(Partition)を返す
+    def select_partition(room)
+      if self.generation == room.generation
+        # 同世代
+        if @block.parent == room.block.parent
+          # 同じ親の場合
+          @block.parent.partition
+        else
+          # 異なる親の場合
+          @block.parent.parent.partition
+        end
+      else
+        # 親世代の場合
+        @block.parent.parent.partition
+      end
+    end
+
+    # 部屋からPartitionに向けて伸ばす通路の出口を決める
+    def get_random_gate(partition, randomizer=nil)
+      randomizer ||= Random.new(Time.now.to_i)
+      if partition.horizontal?
+        if self.y < partition.y
+          # Partitionがこの部屋より下にある
+          gate_y = self.y + @height
+        else
+          # Partitionがこの部屋より上にある
+          gate_y = self.y - 1
+        end
+        gate_x = randomizer.rand((self.x + 1)...(self.x + @width - 1))
+        checker = [[0, 0], [1, 0], [-1, 0]]
+      else
+        if self.x < partition.x
+          # Partitionがこの部屋より右にある
+          gate_x = self.x + @width
+        else
+          # Partitionがこの部屋より左にある
+          gate_x = self.x - 1
+        end
+        gate_y = randomizer.rand((self.y + 1)...(self.y + @height - 1))
+        checker = [[0, 0], [0, 1], [0, -1]]
+      end
+
+      retry_flg = false
+      checker.each do |dx, dy|
+        # 同一の、またはとなり合うGateが作られた場合はやり直し
+        retry_flg |= true if @connected_rooms[[gate_x + dx, gate_y + dy]]
+      end
+      gate_x, gate_y = get_random_gate(partition, randomizer) if retry_flg
+
+      [gate_x, gate_y]
+    end
+
+    def create_passage_to(room, randomizer=nil)
+      # 親世代または同世代以外とは接続不可
+      return false if (room.generation - self.generation).abs > 1
+      # 接続済みの部屋とは何もしない
+      return true if all_connected_rooms.include?(room)
+      # 同じ親の同世代の部屋と接続済みなら何もしない
+      return true if brother && brother.all_connected_rooms.include?(room)
+
+      randomizer ||= Random.new(Time.now.to_i)
+      partition = select_partition(room)
+
+      # 部屋から通路への出口を決定
+      gate_xy = self.get_random_gate(partition, randomizer)
+      o_gate_xy = room.get_random_gate(partition, randomizer)
+
+      created_pass = []
+      # 各部屋のGateからPartitionへ伸びる通路を作成
+      [gate_xy, o_gate_xy].each do |gx, gy|
+        if partition.horizontal?
+          created_pass << Passage.new(gx, gy, gx, partition.y)
+        else
+          created_pass << Passage.new(gx, gy, partition.x, gy)
+        end
+      end
+
+      # 上で作られた通路同士を連結する通路を作成
+      created_pass << Passage.new(created_pass[0].end_x, created_pass[0].end_y,
+                                  created_pass[1].end_x, created_pass[1].end_y)
+
+      created_pass.each do |p|
+        @all_pass << p
+        room.all_pass << p
+      end
+      @connected_rooms[gate_xy] = room
+      room.connected_rooms[o_gate_xy] = self
+      true
     end
   end
 end

@@ -73,7 +73,7 @@ describe Meiro::Room do
 
     context 'Blockを紐付けている場合' do
       subject do
-        room.block = block
+        block.put_room(room)
         room.relative_x = relative_x
         room.relative_y = relative_y
         room.x
@@ -108,7 +108,7 @@ describe Meiro::Room do
 
     context 'Blockを紐付けている場合' do
       subject do
-        room.block = block
+        block.put_room(room)
         room.relative_x = relative_x
         room.relative_y = relative_y
         room.y
@@ -195,7 +195,7 @@ describe Meiro::Room do
       let(:randomizer) { Random.new(1) }
 
       subject do
-        room.block = block
+        block.put_room(room)
         room.set_random_coordinate(randomizer)
       end
 
@@ -233,7 +233,7 @@ describe Meiro::Room do
     subject do
       room.relative_x = 1
       room.relative_y = 1
-      room.block = block
+      block.put_room(room)
       room.available_x_max
     end
 
@@ -258,7 +258,7 @@ describe Meiro::Room do
     subject do
       room.relative_x = 1
       room.relative_y = 1
-      room.block = block
+      block.put_room(room)
       room.available_y_max
     end
 
@@ -283,7 +283,7 @@ describe Meiro::Room do
     subject do
       room.relative_x = 1
       room.relative_y = 1
-      room.block = block
+      block.put_room(room)
       sub = []
       room.each_coordinate do |x, y|
         sub << [x, y]
@@ -296,6 +296,95 @@ describe Meiro::Room do
                   [1, 2], [2, 2], [3, 2],
                   [1, 3], [2, 3], [3, 3],]
       should eq(expected)
+    end
+  end
+
+  describe '#generation' do
+    subject { room.generation }
+
+    context 'Blockに割り当てられていない部屋の場合' do
+      it { should eq(nil) }
+    end
+
+    context 'Blockに割り当てられている部屋の場合' do
+      before do
+        room.relative_x = 1
+        room.relative_y = 1
+        block.put_room(room)
+        block.should_receive(:generation).once
+      end
+
+      it { expect{ subject }.not_to raise_error }
+    end
+  end
+
+  describe '#partition' do
+    subject { room.partition }
+
+    context 'Blockに割り当てられていない部屋の場合' do
+      it { should eq(nil) }
+    end
+
+    context 'Blockに割り当てられている部屋の場合' do
+      before do
+        room.relative_x = 1
+        room.relative_y = 1
+        block.put_room(room)
+        block.should_receive(:partition).once
+      end
+
+      it { expect{ subject }.not_to raise_error }
+    end
+  end
+
+  describe '#brother' do
+    subject { room.brother }
+
+    context 'Blockに割り当てられていない部屋の場合' do
+      it { should eq(nil) }
+    end
+
+    context '割り当てられているBlockが分割されたものでない場合' do
+      before do
+        room.relative_x = 1
+        room.relative_y = 1
+        block.put_room(room)
+      end
+
+      it { should eq(nil) }
+    end
+
+    context '割り当てられているBlockが分割されたものである場合' do
+      let(:parent) { Meiro::Block.new(floor, b_x, b_y, b_width, b_height, nil) }
+      let(:block2) { Meiro::Block.new(floor, b_x, b_y, b_width, b_height, parent) }
+      let(:room2) { described_class.new(3, 3) }
+
+      before(:each) do
+        room.relative_x = 1
+        room.relative_y = 1
+        block.put_room(room)
+        room2.relative_x = 1
+        room2.relative_y = 1
+        block2.put_room(room2)
+      end
+
+      context '対象の部屋がupper_leftの場合' do
+        before do
+          parent.instance_variable_set(:@upper_left, block)
+          parent.instance_variable_set(:@lower_right, block2)
+        end
+
+        it { should eq(room2) }
+      end
+
+      context '対象の部屋がupper_leftの場合' do
+        before do
+          parent.instance_variable_set(:@upper_left, block2)
+          parent.instance_variable_set(:@lower_right, block)
+        end
+
+        it { should eq(room2) }
+      end
     end
   end
 end

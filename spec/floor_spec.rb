@@ -88,6 +88,59 @@ describe Meiro::Floor do
     end
   end
 
+  describe '#all_blocks' do
+    before(:each) do
+      floor.root_block.should_receive(:flatten).once
+    end
+
+    subject { floor.all_blocks }
+
+    it { expect { subject }.not_to raise_error }
+  end
+
+  describe '#all_rooms' do
+    let(:room) { Meiro::Room.new(3, 3) }
+
+    subject { floor.all_rooms }
+
+    context 'rootのみ' do
+      context '部屋なしの場合' do
+        it { should eq([]) }
+      end
+
+      context '部屋ありの場合' do
+        before { floor.root_block.put_room(room) }
+
+        it { should eq([room]) }
+      end
+    end
+
+    context 'root分割済み' do
+      before(:each) { floor.root_block.separate }
+
+      context '部屋なしの場合' do
+        it { should eq([]) }
+      end
+
+      context '部屋1個の場合' do
+        before { floor.root_block.upper_left.put_room(room) }
+
+        it { should eq([room]) }
+      end
+
+      context '部屋2個の場合' do
+        let(:another_room) { Meiro::Room.new(3, 3) }
+
+        before do
+          floor.root_block.upper_left.put_room(room)
+          floor.root_block.lower_right.put_room(another_room)
+        end
+
+        it { should eq([room, another_room]) }
+      end
+    end
+  end
+
   describe '#fill_floor_by_wall' do
     before(:each) { floor.fill_floor_by_wall(width, height) }
 
@@ -108,6 +161,79 @@ describe Meiro::Floor do
   #   5, 8, 9, 5, 0, 0, 1, 7, 6, 9...
   # の順に返す
   let(:randomizer) { Random.new(1) }
+
+  describe '#generate_random_room' do
+    # TODO
+  end
+
+  describe '#connect_rooms' do
+    subject { floor.connect_rooms(randomizer) }
+
+    context '部屋なしの場合' do
+      before { Meiro::Room.any_instance.should_not_receive(:create_passage) }
+
+      it { expect{ subject }.not_to raise_error }
+    end
+
+    context 'rootブロックに部屋1個の場合' do
+      let(:room) { Meiro::Room.new(3, 3) }
+
+      before do
+        floor.root_block.put_room(room)
+        room.should_receive(:create_passage).once.with(randomizer)
+      end
+
+      it { expect{ subject }.not_to raise_error }
+    end
+
+    context '部屋2個の場合' do
+      let(:room1) { Meiro::Room.new(3, 3) }
+      let(:room2) { Meiro::Room.new(3, 3) }
+
+      before do
+        floor.root_block.separate
+        floor.root_block.upper_left.put_room(room1)
+        floor.root_block.lower_right.put_room(room2)
+        room1.should_receive(:create_passage).once.with(randomizer)
+        room2.should_receive(:create_passage).once.with(randomizer)
+      end
+
+      it { expect{ subject }.not_to raise_error }
+    end
+  end
+
+  describe '#apply_rooms_to_map' do
+    subject { floor.apply_rooms_to_map }
+
+    context '部屋なしの場合' do
+      before do
+        floor.base_map.should_not_receive(:apply_room)
+        Meiro::Room.any_instance.should_not_receive(:apply_passage)
+      end
+
+      it { expect{ subject }.not_to raise_error }
+    end
+
+    context '部屋2個の場合' do
+      let(:room1) { Meiro::Room.new(3, 3) }
+      let(:room2) { Meiro::Room.new(3, 3) }
+      let(:tile_klass) { Meiro::Tile::Flat }
+      let(:gate_klass) { Meiro::Tile::Gate }
+
+      before do
+        floor.root_block.separate
+        floor.root_block.upper_left.put_room(room1)
+        floor.root_block.lower_right.put_room(room2)
+        map = floor.base_map
+        map.should_receive(:apply_room).with(room1, tile_klass).once
+        map.should_receive(:apply_room).with(room2, tile_klass).once
+        map.should_receive(:apply_passage).
+          with([room1, room2], gate_klass, tile_klass).once
+      end
+
+      it { expect{ subject }.not_to raise_error }
+    end
+  end
 
   describe '#separate_blocks' do
     subject do

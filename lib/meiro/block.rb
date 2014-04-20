@@ -6,7 +6,7 @@ module Meiro
 
     attr_reader :x, :y, :width, :height,
                 :upper_left, :lower_right,
-                 :partition, :room
+                :partition, :room, :parent
 
     def initialize(floor, x, y, width, height, parent=nil)
       @floor = floor
@@ -53,6 +53,16 @@ module Meiro
 
     def separated?
       @separated
+    end
+
+    def brother
+      if @parent
+        bros = [@parent.upper_left, @parent.lower_right]
+        bros.delete(self)
+        bros.pop
+      else
+        nil
+      end
     end
 
     def horizontal?
@@ -115,6 +125,7 @@ module Meiro
 
     private
 
+    # 横分割 (上下に新しいBlockが生成される)
     def horizontal_separate
       c = @height.even? ? 0 : 1
       block_height = (@height - c) / 2
@@ -122,10 +133,11 @@ module Meiro
                                     @width, block_height, self)
       @lower_right = self.class.new(@floor, @x, @y + 1 + block_height,
                                     @width, @height - (1 + block_height), self)
-      @partition = Partition.new(@x, @y + block_height, @width)
+      @partition = Partition.new(@x, @y + block_height, @width, :horizontal)
       self
     end
 
+    # 縦分割 (左右に新しいBlockが生成される)
     def vertical_separate
       c = @width.even? ? 0 : 1
       block_width = (@width - c) / 2
@@ -133,7 +145,7 @@ module Meiro
                                     block_width, @height, self)
       @lower_right = self.class.new(@floor, @x + 1 + block_width, @y,
                                     @width - (1 + block_width), @height, self)
-      @partition = Partition.new(@x + block_width, @y, @height)
+      @partition = Partition.new(@x + block_width, @y, @height, :vertical)
       self
     end
   end

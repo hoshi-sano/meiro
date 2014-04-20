@@ -146,6 +146,30 @@ describe Meiro::Block do
     end
   end
 
+  describe '#brother' do
+    context 'rootの場合' do
+      subject { block.brother }
+
+      it { should be_nil }
+    end
+
+    context 'parentがいるBlock' do
+      before(:each) { block.separate }
+
+      context 'upper_leftの場合' do
+        subject { block.upper_left.brother }
+
+        it { should eq(block.lower_right) }
+      end
+
+      context 'lower_rightの場合' do
+        subject { block.lower_right.brother }
+
+        it { should eq(block.upper_left) }
+      end
+    end
+  end
+
   describe '#generation' do
     subject { block.generation }
 
@@ -166,6 +190,33 @@ describe Meiro::Block do
       let(:block) { described_class.new(floor, x, y, width, height, parent) }
 
       it { should eq(3) }
+    end
+  end
+
+  describe '#flatten' do
+    subject { block.flatten }
+
+    context '分割していない場合' do
+      it { should eq([block]) }
+    end
+
+    context '1回分割したBlockの場合' do
+      before(:each) { block.separate }
+
+      it { should eq([block.upper_left, block.lower_right]) }
+    end
+
+    context '2回分割したBlockの場合' do
+      before(:each) do
+        block.separate
+        block.upper_left.separate
+        block.lower_right.separate
+      end
+
+      it { should eq([block.upper_left.upper_left,
+                      block.upper_left.lower_right,
+                      block.lower_right.upper_left,
+                      block.lower_right.lower_right,]) }
     end
   end
 

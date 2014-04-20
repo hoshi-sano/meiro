@@ -208,4 +208,89 @@ describe Meiro::BaseMap do
                  [1,1,1,1,1],])
     end
   end
+
+  describe '#apply_passage' do
+    let(:klass_2) { class C2; def self.new; 2; end; end; C2 }
+    let(:klass_1) { class C1; def self.new; 1; end; end; C1 }
+    let(:klass_0) { class C0; def self.new; 0; end; end; C0 }
+    let(:base_map) { described_class.new(width, height, klass_1) }
+    let(:width) { 5 }
+    let(:heiht) { 5 }
+    let(:block) { Meiro::Block.new(floor, 0, 0, 5, 5) }
+    let(:room) { Meiro::Room.new(3, 3) }
+    let(:other_room) { Meiro::Room.new(3, 3) }
+
+    subject do
+      base_map.apply_passage([room], klass_2, klass_0)
+      base_map.map
+    end
+
+    before(:each) { passages.each {|p| room.all_pass << p } }
+
+    context '通路のみ' do
+      context '1本の場合' do
+        let(:passages) { [Meiro::Passage.new(0, 0, 0, 4)] }
+
+        it do
+          should eq([[0,1,1,1,1],
+                     [0,1,1,1,1],
+                     [0,1,1,1,1],
+                     [0,1,1,1,1],
+                     [0,1,1,1,1],])
+        end
+      end
+
+      context '複数の場合' do
+        let(:passages) do
+          [Meiro::Passage.new(0, 0, 2, 0),
+           Meiro::Passage.new(2, 0, 2, 4),
+           Meiro::Passage.new(2, 4, 4, 4),]
+        end
+
+        it do
+          should eq([[0,0,0,1,1],
+                     [1,1,0,1,1],
+                     [1,1,0,1,1],
+                     [1,1,0,1,1],
+                     [1,1,0,0,0],])
+        end
+      end
+    end
+
+    context '通路+出口' do
+      context '通路と出口が重ならない場合' do
+        before(:each) do
+          room.connected_rooms[gate_coordinate] = other_room
+        end
+
+        let(:passages) { [Meiro::Passage.new(0, 0, 0, 4)] }
+        let(:gate_coordinate) { [2, 2] }
+
+        it do
+          should eq([[0,1,1,1,1],
+                     [0,1,1,1,1],
+                     [0,1,2,1,1],
+                     [0,1,1,1,1],
+                     [0,1,1,1,1],])
+        end
+      end
+
+      context '通路と出口が重なる場合' do
+        before(:each) do
+          room.connected_rooms[gate_coordinate] = other_room
+        end
+
+        let(:passages) { [Meiro::Passage.new(0, 0, 0, 4)] }
+        let(:gate_coordinate) { [0, 4] }
+
+        it do
+          should eq([[0,1,1,1,1],
+                     [0,1,1,1,1],
+                     [0,1,1,1,1],
+                     [0,1,1,1,1],
+                     [2,1,1,1,1],])
+        end
+      end
+    end
+  end
 end

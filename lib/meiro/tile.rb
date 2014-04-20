@@ -43,5 +43,10 @@ module Meiro
       register_type :flat
       register_sign '.'
     end
+
+    class Gate < Flat
+      register_type :gate
+      register_sign '+'
+    end
   end
 end

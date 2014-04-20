@@ -7,6 +7,7 @@ require "meiro/block"
 require "meiro/partition"
 require "meiro/room"
 require "meiro/tile"
+require "meiro/passage"
 
 module Meiro
   module ModuleMethods
