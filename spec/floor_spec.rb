@@ -217,7 +217,8 @@ describe Meiro::Floor do
     context '部屋2個の場合' do
       let(:room1) { Meiro::Room.new(3, 3) }
       let(:room2) { Meiro::Room.new(3, 3) }
-      let(:tile_klass) { Meiro::Tile::Flat }
+      let(:flat_klass) { Meiro::Tile::Flat }
+      let(:pass_klass) { Meiro::Tile::Passage }
       let(:gate_klass) { Meiro::Tile::Gate }
 
       before do
@@ -225,10 +226,10 @@ describe Meiro::Floor do
         floor.root_block.upper_left.put_room(room1)
         floor.root_block.lower_right.put_room(room2)
         map = floor.base_map
-        map.should_receive(:apply_room).with(room1, tile_klass).once
-        map.should_receive(:apply_room).with(room2, tile_klass).once
+        map.should_receive(:apply_room).with(room1, flat_klass).once
+        map.should_receive(:apply_room).with(room2, flat_klass).once
         map.should_receive(:apply_passage).
-          with([room1, room2], gate_klass, tile_klass).once
+          with([room1, room2], gate_klass, pass_klass).once
       end
 
       it { expect{ subject }.not_to raise_error }

@@ -6,7 +6,11 @@ module Meiro
     end
 
     def [](x, y)
-      @map[y][x]
+      if 0 <= x && 0 <= y && x < width && y < height
+        @map[y][x]
+      else
+        nil
+      end
     end
 
     def []=(x, y, obj)
@@ -32,6 +36,24 @@ module Meiro
         line.each_with_index do |tile, x|
           yield(x, y, tile)
         end
+      end
+    end
+
+    def get_around(x, y)
+      new = MapLayer.new(width, height)
+      around = [
+       [self[x-1, y-1], self[  x, y-1], self[x+1, y-1]],
+       [self[x-1,   y], self[  x,   y], self[x+1,   y]],
+       [self[x-1, y+1], self[  x, y+1], self[x+1, y+1]],
+      ]
+      new.instance_variable_set(:@map, around)
+      new
+    end
+
+    def dup
+      new = self.class.new(width, height)
+      new.each_tile do |x, y, tile|
+        new[x, y] = self[x, y].dup
       end
     end
   end
@@ -60,7 +82,7 @@ module Meiro
       end
     end
 
-    def apply_passage(rooms, gate_klass, flat_klass)
+    def apply_passage(rooms, gate_klass, pass_klass)
       all_pass = []
       all_gates = []
       rooms.each do |room|
@@ -69,12 +91,27 @@ module Meiro
       end
 
       all_pass.flatten.uniq.each do |p|
-        self.fill_rect(p.start_x, p.start_y, p.end_x, p.end_y, flat_klass)
+        self.fill_rect(p.start_x, p.start_y, p.end_x, p.end_y, pass_klass)
       end
 
       all_gates.flatten(1).each do |x, y|
         self[x, y] = gate_klass.new
       end
+    end
+
+    def classify(type=:rogue_like)
+      res = self.class.new(width, height)
+      res.each_tile do |x, y, tile|
+        res[x, y] = Tile.classify(self.get_around(x, y), type)
+      end
+      res
+    end
+
+    def classify!(type=:rogue_like)
+      self.each_tile do |x, y, tile|
+        self[x, y] = Tile.classify(self.get_around(x, y), type)
+      end
+      self
     end
   end
 end

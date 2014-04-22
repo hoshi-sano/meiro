@@ -50,6 +50,10 @@ module Meiro
       @all_rooms ||= all_blocks.map{|b| b.room }.compact
     end
 
+    def classify!(type=:rogue_like)
+      @base_map.classify!(type)
+    end
+
     def to_s
       res = []
       @base_map.each_line do |line|
@@ -59,7 +63,7 @@ module Meiro
     end
 
     def fill_floor_by_wall(w, h)
-      @base_map = BaseMap.new(w, h, Tile::Wall)
+      @base_map = BaseMap.new(w, h, Tile.wall)
     end
 
     # ランダムで部屋と通路を生成する
@@ -85,9 +89,9 @@ module Meiro
     # に反映させる
     def apply_rooms_to_map
       all_rooms.each do |room|
-        @base_map.apply_room(room, Tile::Flat)
+        @base_map.apply_room(room, Tile.flat)
       end
-      @base_map.apply_passage(all_rooms, Tile::Gate, Tile::Flat)
+      @base_map.apply_passage(all_rooms, Tile.gate, Tile.passage)
     end
 
     # 設定された部屋数のMIN,MAXの範囲に収まるよう区画をランダムで分割
