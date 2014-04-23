@@ -141,6 +141,78 @@ describe Meiro::Floor do
     end
   end
 
+  describe '#get_block' do
+
+    subject { floor.get_block(x, y) }
+
+    context 'rootのみ' do
+      [
+       [0, 0],
+       [1, 1],
+       [0, 39], # height-1
+       [0, 40], # height
+       [59, 0],  # width-1
+       [60, 0],  # width
+       [59, 39], # width-1, height-1
+       [60, 40], # width, height
+      ].each do |_x, _y|
+        context "座標(#{_x}, #{_y})を指定した場合" do
+          let(:x) { _x }
+          let(:y) { _y }
+          it { should eq(floor.root_block) }
+        end
+      end
+    end
+
+    context 'root1回分割済み' do
+      [
+       [ 0,  0, :upper_left],
+       [ 1,  1, :upper_left],
+       [ 0, 39, :upper_left],  # height-1
+       [ 0, 40, :upper_left],  # height
+       [59,  0, :lower_right], # width-1
+       [60,  0, :lower_right], # width
+       [59, 39, :lower_right], # width-1, height-1
+       [60, 40, :lower_right], # width, height
+      ].each do |_x, _y, which|
+        context "座標(#{_x}, #{_y})を指定した場合" do
+          before(:each) { floor.root_block.separate }
+          let(:x) { _x }
+          let(:y) { _y }
+          it "#{which}を返す" do
+            should eq(floor.root_block.send(which))
+          end
+        end
+      end
+    end
+
+    context 'root2回分割済み' do
+      [
+       [ 0,  0, :upper_left,  :upper_left],
+       [ 1,  1, :upper_left,  :upper_left],
+       [ 0, 39, :upper_left,  :lower_right],  # height-1
+       [ 0, 40, :upper_left,  :lower_right],  # height
+       [59,  0, :lower_right, :upper_left], # width-1
+       [60,  0, :lower_right, :upper_left], # width
+       [59, 39, :lower_right, :lower_right], # width-1, height-1
+       [60, 40, :lower_right, :lower_right], # width, height
+      ].each do |_x, _y, which_1, which_2|
+        context "座標(#{_x}, #{_y})を指定した場合" do
+          before(:each) do
+            floor.root_block.separate
+            floor.root_block.upper_left.separate
+            floor.root_block.lower_right.separate
+          end
+          let(:x) { _x }
+          let(:y) { _y }
+          it "#{which_1}の#{which_2}を返す" do
+            should eq(floor.root_block.send(which_1).send(which_2))
+          end
+        end
+      end
+    end
+  end
+
   describe '#fill_floor_by_wall' do
     before(:each) { floor.fill_floor_by_wall(width, height) }
 

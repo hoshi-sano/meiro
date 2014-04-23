@@ -55,6 +55,8 @@ module Meiro
       @separated
     end
 
+    # 同じ親から分割された片割れを返す。
+    # 親がいない場合はnilを返す。
     def brother
       if @parent
         bros = [@parent.upper_left, @parent.lower_right]
@@ -63,6 +65,42 @@ module Meiro
       else
         nil
       end
+    end
+
+    # 辺を共有するBlockを返す。そのBlockが親(分割済)であった場合は、分
+    # 割されたいずれかのうち、辺を共有している方を返す。
+    def neighbors
+      got = []
+      neighborhood_xy.each do |x, y|
+        got << @floor.get_block(x, y)
+      end
+      got.compact.uniq
+    end
+
+    # 指定した座標が自身に含まれるか否かを返す
+    def include?(x, y)
+      @x <= x && x <= (@x + @width) &&
+        @y <= y && y <= (@y + @height)
+    end
+
+    # 辺を共有するBlockを検索するため、辺を共有するBlockがある場合には
+    # それに含まれるであろうx座標、y座標を返す
+    def neighborhood_xy
+      res = []
+      c = 2 # Partitionがあるため、端から2マス先を見る必要がある
+      if @x - c >= 0
+        res << (@y..(@y + @height)).map {|y| [@x - c, y] }
+      end
+      if @x + @width + c <= @floor.width
+        res << (@y..(@y + @height)).map {|y| [@x + @width + c, y] }
+      end
+      if @y - c >= 0
+        res << (@x..(@x + @width)).map {|x| [x, @y - c] }
+      end
+      if @y + @height + c <= @floor.height
+        res << (@x..(@x + @width)).map {|x| [x, @y + @height + c] }
+      end
+      res.flatten(1)
     end
 
     def horizontal?

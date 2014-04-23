@@ -50,6 +50,23 @@ module Meiro
       @all_rooms ||= all_blocks.map{|b| b.room }.compact
     end
 
+    # 指定したx座標、y座標を含むBlockを返す。そのBlockが親(分割済)であっ
+    # た場合は、分割されたいずれかのうち、辺を共有している方を返す。該
+    # 当するものがない場合はnilを返す。
+    def get_block(x, y, from=nil)
+      from ||= @root_block
+      if from.include?(x, y)
+        if from.separated?
+          get_block(x, y, from.upper_left) ||
+            get_block(x, y, from.lower_right)
+        else
+          from
+        end
+      else
+        nil
+      end
+    end
+
     def classify!(type=:rogue_like)
       @base_map.classify!(type)
     end

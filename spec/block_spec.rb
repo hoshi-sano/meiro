@@ -170,6 +170,80 @@ describe Meiro::Block do
     end
   end
 
+  describe '#neighbors' do
+    context 'rootの場合' do
+      subject { block.neighbors }
+
+      it { should eq([]) }
+    end
+
+    context 'root1回分割済み' do
+      #  +---+---+
+      #  | 1 | 2 |
+      #  +---+---+
+      before(:each) { floor.root_block.separate }
+
+      # 1
+      context 'upper_leftの場合' do
+        subject { floor.root_block.upper_left.neighbors }
+
+        it { should eq([floor.root_block.lower_right]) }
+      end
+
+      # 2
+      context 'lower_rightの場合' do
+        subject { floor.root_block.lower_right.neighbors }
+
+        it { should eq([floor.root_block.upper_left]) }
+      end
+    end
+
+    context 'root2回分割済み' do
+      #  +---+---+
+      #  | 1 | 3 |
+      #  +---+---+
+      #  | 2 | 4 |
+      #  +---+---+
+      before(:each) do
+        floor.root_block.separate
+        floor.root_block.upper_left.separate
+        floor.root_block.lower_right.separate
+      end
+
+      # 1
+      context 'upper_left.upper_leftの場合' do
+        subject { floor.root_block.upper_left.upper_left.neighbors }
+
+        it { should eq([floor.root_block.lower_right.upper_left,    # 3
+                        floor.root_block.upper_left.lower_right]) } # 2
+      end
+
+      # 2
+      context 'upper_left.lower_rightの場合' do
+        subject { floor.root_block.upper_left.lower_right.neighbors }
+
+        it { should eq([floor.root_block.lower_right.lower_right,  # 4
+                        floor.root_block.upper_left.upper_left]) } # 1
+      end
+
+      # 3
+      context 'lower_right.upper_leftの場合' do
+        subject { floor.root_block.lower_right.upper_left.neighbors }
+
+        it { should eq([floor.root_block.upper_left.upper_left,      # 1
+                        floor.root_block.lower_right.lower_right]) } # 4
+      end
+
+      # 4
+      context 'lower_right.lower_rightの場合' do
+        subject { floor.root_block.lower_right.lower_right.neighbors }
+
+        it { should eq([floor.root_block.upper_left.lower_right,    # 2
+                        floor.root_block.lower_right.upper_left]) } # 3
+      end
+    end
+  end
+
   describe '#generation' do
     subject { block.generation }
 
