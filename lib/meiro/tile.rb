@@ -40,10 +40,6 @@ module Meiro
       def passage
         TileManager.passage
       end
-
-      def binary_wall
-        TileManager.binary_wall
-      end
     end
     extend ModuleMethods
 
@@ -102,7 +98,7 @@ module Meiro
     end
 
     class BinaryWall < Wall
-      register_type :bin_wall
+      register_type :binary_wall
       register_sign '#'
       walkable false
     end
@@ -196,7 +192,7 @@ module Meiro
       flat: Flat,
       gate: Gate,
       passage: Passage,
-      bin_wall: BinaryWall,
+      binary_wall: BinaryWall,
 
       # [## ]
       # [## ]

@@ -17,52 +17,34 @@ module Meiro
         @class_map || TileManager.instance_variable_get(:@class_map)
       end
 
-      def wall
-        class_map[:wall]
-      end
+      [
+       :wall,
+       :flat,
+       :gate,
+       :passage,
+       :binary_wall,
 
-      def flat
-        class_map[:flat]
-      end
+       # [## ] [###] [###] [## ] [## ]
+       # [## ] [## ] [###] [## ] [###]
+       # [## ] [## ] [## ] [###] [###]
+       :l_wall,
 
-      def gate
-        class_map[:gate]
-      end
+       # [ ##] [###] [###] [ ##] [ ##]
+       # [ ##] [ ##] [###] [ ##] [###]
+       # [ ##] [ ##] [ ##] [###] [###]
+       :r_wall,
 
-      def passage
-        class_map[:passage]
-      end
+       # [###] [###] [###]
+       # [###] [###] [###]
+       # [   ] [  #] [#  ]
+       :t_wall,
 
-      def binary_wall
-        class_map[:bin_wall]
-      end
-
-      # [## ] [###] [###] [## ] [## ]
-      # [## ] [## ] [###] [## ] [###]
-      # [## ] [## ] [## ] [###] [###]
-      def l_wall
-        class_map[:l_wall]
-      end
-
-      # [ ##] [###] [###] [ ##] [ ##]
-      # [ ##] [ ##] [###] [ ##] [###]
-      # [ ##] [ ##] [ ##] [###] [###]
-      def r_wall
-        class_map[:r_wall]
-      end
-
-      # [###] [###] [###]
-      # [###] [###] [###]
-      # [   ] [  #] [#  ]
-      def t_wall
-        class_map[:t_wall]
-      end
-
-      # [   ] [#  ] [  #]
-      # [###] [###] [###]
-      # [###] [###] [###]
-      def b_wall
-        class_map[:b_wall]
+       # [   ] [#  ] [  #]
+       # [###] [###] [###]
+       # [###] [###] [###]
+       :b_wall,
+      ].each do |name|
+        define_method(name) { class_map[name] }
       end
 
       # def classify(tiles)
