@@ -67,24 +67,6 @@ module Meiro
 
       # def classify(tiles)
       # end
-
-      def rogue_like_classify(tiles)
-        binary_classify(tiles)
-      end
-
-      def detailed_classify(tiles)
-        binary_classify(tiles)
-      end
-
-      def binary_classify(tiles)
-        target = tiles[1, 1]
-        klass = target.walkable? ? flat : binary_wall
-        if target.instance_of?(klass)
-          target
-        else
-          klass.new
-        end
-      end
     end
   end
 end
