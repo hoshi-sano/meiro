@@ -387,4 +387,158 @@ describe Meiro::Room do
       end
     end
   end
+
+  def put_and_return_room(block)
+    r = described_class.new(3, 3)
+    r.relative_x, r.relative_y = 1, 1
+    block.put_room(r)
+    r
+  end
+
+  describe '#select_partition' do
+    let(:root_block) { floor.root_block.separate; floor.root_block }
+
+    subject { room.select_partition(other) }
+
+    context '第2世代-第2世代' do
+      # +---+---+
+      # | 1 | 2 |
+      # +---+---+
+      let(:block_1) { root_block.upper_left }
+      let(:block_2) { root_block.lower_right }
+      let(:room_1) { put_and_return_room(block_1) }
+      let(:room_2) { put_and_return_room(block_2) }
+
+      context 'self:1, other:2の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_2 }
+
+        it { should eq(root_block.partition) }
+      end
+
+      context 'self:2, other:1の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_2 }
+
+        it { should eq(root_block.partition) }
+      end
+    end
+
+    context '第3世代-第3世代' do
+      # +---+---+
+      # | 1 | 3 |
+      # +---+---+
+      # | 2 | 4 |
+      # +---+---+
+      let(:block_l) { root_block.upper_left.separate; root_block.upper_left }
+      let(:block_r) { root_block.lower_right.separate; root_block.lower_right }
+      let(:block_1) { block_l.upper_left }
+      let(:block_2) { block_l.lower_right }
+      let(:block_3) { block_r.upper_left }
+      let(:block_4) { block_r.lower_right }
+      let(:room_1) { put_and_return_room(block_1) }
+      let(:room_2) { put_and_return_room(block_2) }
+      let(:room_3) { put_and_return_room(block_3) }
+      let(:room_4) { put_and_return_room(block_4) }
+
+      context 'self:1, other:2の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_2 }
+
+        it { should eq(block_l.partition) }
+      end
+
+      context 'self:1, other:3の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_3 }
+
+        it { should eq(root_block.partition) }
+      end
+
+      context 'self:1, other:4の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_3 }
+
+        it { should eq(root_block.partition) }
+      end
+    end
+
+    context '第2世代-第3世代' do
+      # +---+---+
+      # |   | 2 |
+      # | 1 +---+
+      # |   | 3 |
+      # +---+---+
+      let(:block_1) { root_block.upper_left }
+      let(:block_r) { root_block.lower_right.separate; root_block.lower_right }
+      let(:block_2) { block_r.upper_left }
+      let(:block_3) { block_r.lower_right }
+      let(:room_1) { put_and_return_room(block_1) }
+      let(:room_2) { put_and_return_room(block_2) }
+      let(:room_3) { put_and_return_room(block_3) }
+
+      context 'self:1, other:2の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_2 }
+
+        it { should eq(root_block.partition) }
+      end
+
+      context 'self:1, other:3の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_3 }
+
+        it { should eq(root_block.partition) }
+      end
+    end
+
+    context '第2世代-第4世代' do
+      # +------+---+---+
+      # |      | 2 | 3 |
+      # |  1   +---+---+
+      # |      | 4 | 5 |
+      # +------+---+---+
+      let(:block_1) { root_block.upper_left }
+      let(:block_r) { root_block.lower_right.separate; root_block.lower_right }
+      let(:block_ru) { block_r.upper_left.separate; block_r.upper_left }
+      let(:block_rl) { block_r.lower_right.separate; block_r.lower_right }
+      let(:block_2) { block_ru.upper_left }
+      let(:block_3) { block_ru.lower_right }
+      let(:block_4) { block_rl.upper_left }
+      let(:block_5) { block_rl.lower_right }
+      let(:room_1) { put_and_return_room(block_1) }
+      let(:room_2) { put_and_return_room(block_2) }
+      let(:room_3) { put_and_return_room(block_3) }
+      let(:room_4) { put_and_return_room(block_4) }
+      let(:room_5) { put_and_return_room(block_5) }
+
+      context 'self:1, other:2の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_2 }
+
+        it { should eq(root_block.partition) }
+      end
+
+      context 'self:1, other:3の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_3 }
+
+        it { should eq(root_block.partition) }
+      end
+
+      context 'self:1, other:4の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_4 }
+
+        it { should eq(root_block.partition) }
+      end
+
+      context 'self:1, other:5の場合' do
+        let(:room)  { room_1 }
+        let(:other) { room_5 }
+
+        it { should eq(root_block.partition) }
+      end
+    end
+  end
 end

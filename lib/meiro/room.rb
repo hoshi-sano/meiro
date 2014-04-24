@@ -124,45 +124,16 @@ module Meiro
     # この部屋と通路で接続可能な部屋を返す
     def connectable_rooms
       rooms = []
-
-      # 同世代(兄弟)
-      rooms << brother
-
-      if @block.parent && @block.parent.parent
-        # 親世代
-        rooms << @block.parent.parent.upper_left.room
-        rooms << @block.parent.parent.lower_right.room
-        if @block.parent.parent.upper_left.separated?
-          # 同世代
-          rooms << @block.parent.parent.upper_left.upper_left.room
-          rooms << @block.parent.parent.upper_left.lower_right.room
-        end
-        if @block.parent.parent.lower_right.separated?
-          # 同世代
-          rooms << @block.parent.parent.lower_right.upper_left.room
-          rooms << @block.parent.parent.lower_right.lower_right.room
-        end
+      # 隣接するブロックに所属する部屋を接続可能とする
+      @block.neighbors.each do |b|
+        rooms << b.room if b.has_room?
       end
-
-      rooms.delete(self)
-      rooms.compact.uniq
+      rooms
     end
 
     # 接続対象の部屋との仕切り(Partition)を返す
     def select_partition(room)
-      if self.generation == room.generation
-        # 同世代
-        if @block.parent == room.block.parent
-          # 同じ親の場合
-          @block.parent.partition
-        else
-          # 異なる親の場合
-          @block.parent.parent.partition
-        end
-      else
-        # 親世代の場合
-        @block.parent.parent.partition
-      end
+      @block.find_ancestor(room.block).partition
     end
 
     # 部屋からPartitionに向けて伸ばす通路の出口を決める
@@ -200,9 +171,8 @@ module Meiro
       [gate_x, gate_y]
     end
 
+    # 自身と引数で渡した部屋とを接続する通路を作成する
     def create_passage_to(room, randomizer=nil)
-      # 親世代または同世代以外とは接続不可
-      return false if (room.generation - self.generation).abs > 1
       # 接続済みの部屋とは何もしない
       return true if all_connected_rooms.include?(room)
       # 同じ親の同世代の部屋と接続済みなら何もしない

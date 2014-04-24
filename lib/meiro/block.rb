@@ -55,6 +55,28 @@ module Meiro
       @separated
     end
 
+    # 共通の親(先祖)を返す
+    def find_ancestor(other)
+      return nil if !self.parent || !other.parent
+
+      # 世代を揃える
+      if self.generation >= other.generation
+        younger, older = self, other
+      else
+        younger, older = other, self
+      end
+      diff = younger.generation - older.generation
+      diff.times { younger = younger.parent }
+
+      # 親が同一になるまで遡る
+      until younger.parent == older.parent
+        younger = younger.parent
+        older = older.parent
+      end
+
+      younger.parent
+    end
+
     # 同じ親から分割された片割れを返す。
     # 親がいない場合はnilを返す。
     def brother
