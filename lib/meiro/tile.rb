@@ -59,7 +59,8 @@ module Meiro
       end
 
       def type
-        self.class.instance_variable_get(:@type)
+        self.class.instance_variable_get(:@type) ||
+          self.class.superclass.instance_variable_get(:@type)
       end
 
       def type_is?(symbol)
@@ -67,7 +68,8 @@ module Meiro
       end
 
       def sign
-        self.class.instance_variable_get(:@sign)
+        self.class.instance_variable_get(:@sign) ||
+          self.class.superclass.instance_variable_get(:@sign)
       end
 
       def to_s
@@ -75,7 +77,8 @@ module Meiro
       end
 
       def walkable?
-        !!self.class.instance_variable_get(:@walkable)
+        !!(self.class.instance_variable_get(:@walkable) ||
+           self.class.superclass.instance_variable_get(:@walkable))
       end
     end
 
