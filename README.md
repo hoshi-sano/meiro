@@ -1,28 +1,49 @@
 # Meiro
 
-TODO: Write a gem description
+Meiroはいわゆる「ローグライク」系、「不思議のダンジョン」系といわれる
+ゲームに使われるようなランダムダンジョン生成用のRubyライブラリです。
 
-## Installation
+Meiro is Random Dungeon Generator for Ruby.
+It generates maps used for so-called Rogue-like games.
 
-Add this line to your application's Gemfile:
+## インストール - Installation
 
-    gem 'meiro'
+TODO:
 
-And then execute:
+## 使用方法 - Usage
 
-    $ bundle
+TODO:
 
-Or install it yourself as:
+### 基本構造 - Basic Structure
 
-    $ gem install meiro
+```
+  Dungeon
+     |
+     +--- Floor
+            |
+            +--- MapLayer
+            |      |
+            |      +--- Tiles
+            |
+            +--- Block(Root)
+                   |
+                   +--- Block
+                   |      |
+                   |      +--- Block --- Room
+                   |      |
+                   |      +--- Block --- Room
+                   |
+                   +--- Block
+                          |
+                          +--- Block --- Room
+                          |
+                          +--- Block --- Room
 
-## Usage
-
-TODO: Write usage instructions here
+```
 
 ## Contributing
 
-1. Fork it ( http://github.com/<my-github-username>/meiro/fork )
+1. Fork it ( http://github.com/hoshi-sano/meiro/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
