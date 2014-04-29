@@ -12,7 +12,54 @@ TODO:
 
 ## 使用方法 - Usage
 
-TODO:
+### 基本的な使い方 - Basic Usage
+
+```ruby
+require 'meiro'
+
+options = {
+  width:  40,
+  height: 25,
+  min_room_number: 3,
+  max_room_number: 6,
+  min_room_width:  5,
+  max_room_width: 10,
+  min_room_height: 3,
+  max_room_height: 5,
+  block_split_factor: 3.0,
+}
+dungeon = Meiro.create_dungeon(options)
+floor = dungeon.generate_random_floor
+
+floor.classify!(:rogue_like)
+puts floor.to_s
+# =>
+#                                        
+#                                        
+#                                        
+#   |-----|                              
+#   |.....|                              
+#   |.....|                              
+#   |.....+###########     |----------|  
+#   |.....|          #     |..........|  
+#   |-+---|          ######+..........|  
+#     #                    |..........|  
+#     #                    |-+--------|  
+#     #                      #           
+#     #####                ###           
+#         #                #             
+#       |-+--------|       #             
+#       |..........|   |---+------|      
+#       |..........|   |..........|      
+#       |..........+###+..........|      
+#       |..........|   |..........|      
+#       |----------|   |----------|      
+#                                        
+#                                        
+#                                        
+#                                        
+#                                        
+```
 
 ### 基本構造 - Basic Structure
 
