@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Meiro::VERSION
   spec.authors       = ["Yuki Morohoshi"]
   spec.email         = ["hoshi.sanou@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{Random Dungeon Generator}
+  spec.description   = %q{Meiro generates maps used for so-called Rogue-like games.}
+  spec.homepage      = "http://github.com/hoshi-sano/meiro"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
