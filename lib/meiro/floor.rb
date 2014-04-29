@@ -50,6 +50,14 @@ module Meiro
       @all_rooms ||= all_blocks.map{|b| b.room }.compact
     end
 
+    def each_line(&block)
+      @base_map.each_line(&block)
+    end
+
+    def each_tile(&block)
+      @base_map.each_tile(&block)
+    end
+
     # 指定したx座標、y座標を含むBlockを返す。そのBlockが親(分割済)であっ
     # た場合は、分割されたいずれかのうち、x座標、y座標を含む方を返す。
     # 該当するものがない場合はnilを返す。
