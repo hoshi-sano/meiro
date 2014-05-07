@@ -14,16 +14,23 @@ module Meiro
       @all_pass = []
     end
 
+    # floorにおける絶対x座標
+    # ブロックのx座標に、ブロックのx座標を基準とした相対x座標を足しあわ
+    # せたものを返す
     def x
       return nil if @block.nil?
       @block.x + @relative_x
     end
 
+    # floorにおける絶対y座標
+    # ブロックのy座標に、ブロックのy座標を基準とした相対y座標を足しあわ
+    # せたものを返す
     def y
       return nil if @block.nil?
       @block.y + @relative_y
     end
 
+    # ブロックのx座標を基準とした相対x座標
     def relative_x=(x)
       if @block
         if x < available_x_min || x > available_x_max
@@ -34,6 +41,7 @@ module Meiro
       @relative_x = x
     end
 
+    # ブロックのy座標を基準とした相対y座標
     def relative_y=(y)
       if @block
         if y < available_y_min || y > available_y_max
@@ -42,6 +50,15 @@ module Meiro
         end
       end
       @relative_y = y
+    end
+
+    # 部屋のマスの全ての絶対xy座標を返す
+    def get_all_abs_coordinate
+      res = []
+      self.each_coordinate do |_x, _y|
+        res << [_x, _y]
+      end
+      res
     end
 
     def block=(block)

@@ -130,6 +130,26 @@ describe Meiro::Room do
     end
   end
 
+  describe '#get_all_abs_coordinate' do
+    before do
+      block.put_room(room)
+      room.relative_x = relative_x
+      room.relative_y = relative_y
+    end
+
+    subject { room.get_all_abs_coordinate }
+
+    context 'ブロックの座標が(0,0)、相対座標が(8,4)、幅が10、高さが5の場合' do
+      let(:expected_ary) do
+        a = []
+        (4..8).each {|y| (8..17).each {|x| a << [x, y] } }
+        a
+      end
+
+      it { should eq(expected_ary) }
+    end
+  end
+
   describe '#block=' do
     subject { room.block = block }
 
