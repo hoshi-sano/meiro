@@ -141,6 +141,98 @@ describe Meiro::Floor do
     end
   end
 
+  describe '#all_room_tiles_xy' do
+    let(:room) { Meiro::Room.new(3, 3) }
+
+    subject { floor.all_room_tiles_xy }
+
+    context 'rootのみ' do
+      context '部屋なしの場合' do
+        it { should eq([]) }
+      end
+
+      context '部屋あり' do
+        before do
+          floor.root_block.put_room(room)
+          room.relative_x = room_relative_x
+          room.relative_y = room_relative_y
+        end
+
+        context '相対座標(1,2)の場合' do
+          let(:room_relative_x) { 1 }
+          let(:room_relative_y) { 2 }
+          let(:expected_ary) do
+            a = []
+            (2..4).each{|y| (1..3).each{|x| a << [x, y] } }
+            a
+          end
+
+          it { should eq(expected_ary) }
+        end
+      end
+    end
+
+    context 'root分割済み' do
+      before(:each) { floor.root_block.separate }
+
+      context '部屋なしの場合' do
+        it { should eq([]) }
+      end
+
+      context '部屋1個' do
+        before do
+          floor.root_block.upper_left.put_room(room)
+          room.relative_x = room_relative_x
+          room.relative_y = room_relative_y
+        end
+
+        context '相対座標(1,2)の場合' do
+          let(:room_relative_x) { 1 }
+          let(:room_relative_y) { 2 }
+          let(:expected_ary) do
+            a = []
+            cx = floor.root_block.upper_left.x
+            cy = floor.root_block.upper_left.y
+            ((cy+2)..(cy+4)).each{|y| ((cx+1)..(cx+3)).each{|x| a << [x, y] } }
+            a
+          end
+
+          it { should eq(expected_ary) }
+        end
+      end
+
+      context '部屋2個' do
+        let(:another_room) { Meiro::Room.new(3, 3) }
+
+        before do
+          floor.root_block.upper_left.put_room(room)
+          room.relative_x = room_relative_x
+          room.relative_y = room_relative_y
+          floor.root_block.lower_right.put_room(another_room)
+          another_room.relative_x = room_relative_x
+          another_room.relative_y = room_relative_y
+        end
+
+        context '相対座標(1,2)の場合' do
+          let(:room_relative_x) { 1 }
+          let(:room_relative_y) { 2 }
+          let(:expected_ary) do
+            a = []
+            cx = floor.root_block.upper_left.x
+            cy = floor.root_block.upper_left.y
+            ((cy+2)..(cy+4)).each{|y| ((cx+1)..(cx+3)).each{|x| a << [x, y] } }
+            cx = floor.root_block.lower_right.x
+            cy = floor.root_block.lower_right.y
+            ((cy+2)..(cy+4)).each{|y| ((cx+1)..(cx+3)).each{|x| a << [x, y] } }
+            a
+          end
+
+          it { should eq(expected_ary) }
+        end
+      end
+    end
+  end
+
   describe '#get_block' do
 
     subject { floor.get_block(x, y) }

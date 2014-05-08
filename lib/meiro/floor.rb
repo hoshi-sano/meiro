@@ -58,6 +58,15 @@ module Meiro
       @base_map.each_tile(&block)
     end
 
+    # このフロアに属するすべての部屋のマスのxy座標を返す
+    def all_room_tiles_xy
+      res = []
+      all_rooms.each do |room|
+        res << room.get_all_abs_coordinate
+      end
+      res.flatten(1)
+    end
+
     # 指定したx座標、y座標を含むBlockを返す。そのBlockが親(分割済)であっ
     # た場合は、分割されたいずれかのうち、x座標、y座標を含む方を返す。
     # 該当するものがない場合はnilを返す。
