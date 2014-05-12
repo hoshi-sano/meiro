@@ -88,6 +88,16 @@ module Meiro
       end
     end
 
+    # 指定したx座標、y座標を含むRoomを返す。
+    # 該当するものがない場合はnilを返す。
+    def get_room(x, y)
+      if block = get_block(x, y)
+        block.room
+      else
+        nil
+      end
+    end
+
     def classify!(type=:rogue_like)
       @base_map.classify!(type)
     end
