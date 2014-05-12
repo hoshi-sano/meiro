@@ -1,5 +1,15 @@
 module Meiro
   class Block
+    class << self
+      def set_mixin_room_module(mod)
+        @mixin_room_module = mod
+      end
+
+      def remove_mixin_room_module
+        @mixin_room_module = nil
+      end
+    end
+
     MIN_WIDTH = FLOOR_MIN_WIDTH * 2 + 1
     MIN_HEIGHT = FLOOR_MIN_HEIGHT * 2 + 1
     MARGIN = 1
@@ -165,7 +175,7 @@ module Meiro
         max_h = [@floor.max_room_height, (@height - MARGIN * 2)].min
         rand_w = randomizer.rand(min_w..max_w)
         rand_h = randomizer.rand(min_h..max_h)
-        @room = Room.new(rand_w, rand_h)
+        @room = create_room(rand_w, rand_h)
       else
         return false
       end
@@ -184,6 +194,23 @@ module Meiro
     end
 
     private
+
+    module RoomInitializer
+      def initialize
+      end
+    end
+
+    def mixin_room_module
+      self.class.instance_variable_get(:@mixin_room_module)
+    end
+
+    def create_room(width, height)
+      room = Room.new(width, height)
+      room.extend(RoomInitializer)
+      room.extend(mixin_room_module) if mixin_room_module
+      room.instance_eval { initialize }
+      room
+    end
 
     # 横分割 (上下に新しいBlockが生成される)
     def horizontal_separate

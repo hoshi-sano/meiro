@@ -17,6 +17,11 @@ module Meiro
       option :block_split_factor, Float, 1.0, lambda {|n,o| n > 0 }
     end
 
+    module FloorInitializer
+      def initialize
+      end
+    end
+
     attr_accessor :width, :height,
                   :min_room_number, :max_room_number,
                   :min_room_width,  :min_room_height,
@@ -37,15 +42,20 @@ module Meiro
       @randomizer = Random.new(Time.now.to_i)
     end
 
-    def create_floor
+    def create_floor(mixin_floor_module=nil, mixin_room_module=nil)
       args = [self, @width, @height,
               @min_room_width, @min_room_height,
               @max_room_width, @max_room_height]
-      Floor.new(*args)
+      f = Floor.new(*args)
+      f.extend(FloorInitializer)
+      f.extend(mixin_floor_module) if mixin_floor_module
+      Block.set_mixin_room_module(mixin_room_module) if mixin_room_module
+      f.instance_eval { initialize }
+      f
     end
 
-    def generate_random_floor
-      floor = create_floor
+    def generate_random_floor(mixin_floor_module=nil, mixin_room_module=nil)
+      floor = create_floor(mixin_floor_module, mixin_room_module)
       args = [@min_room_number, @max_room_number,
               @block_split_factor, @randomizer]
       floor.generate_random_room(*args)
