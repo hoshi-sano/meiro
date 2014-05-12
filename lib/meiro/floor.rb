@@ -42,6 +42,10 @@ module Meiro
       @base_map.height
     end
 
+    def [](x, y)
+      @base_map[x, y]
+    end
+
     def all_blocks
       @root_block.flatten
     end
