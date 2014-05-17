@@ -61,6 +61,11 @@ module Meiro
       res
     end
 
+    # 引数で渡した座標を部屋の内部に含むかどうかを返す
+    def include?(_x, _y)
+      self.get_all_abs_coordinate.include?([_x, _y])
+    end
+
     def block=(block)
       @block = block
       if @relative_x && @relative_y

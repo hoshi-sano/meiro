@@ -91,7 +91,9 @@ module Meiro
     # 指定したx座標、y座標を含むRoomを返す。
     # 該当するものがない場合はnilを返す。
     def get_room(x, y)
-      if block = get_block(x, y)
+      block = get_block(x, y)
+      return nil if block.nil?
+      if block.room && block.room.include?(x, y)
         block.room
       else
         nil
