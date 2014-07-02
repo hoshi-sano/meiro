@@ -457,7 +457,7 @@ describe Meiro::Floor do
       let(:min_room_number) { 100 }
       let(:max_room_number) { 100 }
 
-      it { expect { subject }.to raise_error }
+      it { expect { subject }.to raise_error(Meiro::TrySeparateLimitError) }
     end
   end
 

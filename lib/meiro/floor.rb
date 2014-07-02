@@ -1,5 +1,9 @@
 module Meiro
+  class FloorError < StandardError; end
+  class TrySeparateLimitError < FloorError; end
+
   class Floor
+
     TRY_SEPARATE_LIMIT = 1000000
 
     attr_reader :dungeon, :width, :height,
@@ -177,7 +181,9 @@ module Meiro
         end
 
         try_count += 1
-        raise "could not create expected floor" if try_count > TRY_SEPARATE_LIMIT
+        if try_count > TRY_SEPARATE_LIMIT
+          raise TrySeparateLimitError, "could not create expected floor"
+        end
       end
       self
     end
