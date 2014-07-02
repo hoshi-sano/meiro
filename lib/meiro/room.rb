@@ -170,7 +170,7 @@ module Meiro
           gate_y = self.y - 1
         end
         gate_x = randomizer.rand((self.x + 1)...(self.x + @width - 1))
-        checker = [[0, 0], [1, 0], [-1, 0]]
+        checker = [[1, 0], [-1, 0]]
       else
         if self.x < partition.x
           # Partitionがこの部屋より右にある
@@ -180,12 +180,12 @@ module Meiro
           gate_x = self.x - 1
         end
         gate_y = randomizer.rand((self.y + 1)...(self.y + @height - 1))
-        checker = [[0, 0], [0, 1], [0, -1]]
+        checker = [[0, 1], [0, -1]]
       end
 
       retry_flg = false
       checker.each do |dx, dy|
-        # 同一の、またはとなり合うGateが作られた場合はやり直し
+        # となり合うGateが作られた場合はやり直し
         retry_flg |= true if @connected_rooms[[gate_x + dx, gate_y + dy]]
       end
       gate_x, gate_y = get_random_gate(partition, randomizer) if retry_flg
