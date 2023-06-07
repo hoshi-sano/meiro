@@ -1,11 +1,5 @@
 # TypeProf 0.21.2
 
-# Classes
-class Object
-  private
-  def put_and_return_room: (untyped block) -> untyped
-end
-
 module Meiro
   FLOOR_MIN_WIDTH: Integer
   FLOOR_MIN_HEIGHT: Integer
