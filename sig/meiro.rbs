@@ -1,0 +1,466 @@
+# TypeProf 0.21.2
+
+# Classes
+module Meiro
+  FLOOR_MIN_WIDTH: Integer
+  FLOOR_MIN_HEIGHT: Integer
+  ROOM_MIN_WIDTH: Integer
+  ROOM_MIN_HEIGHT: Integer
+  VERSION: String
+  extend ModuleMethods
+
+  module ModuleMethods
+    def create_dungeon: (?Hash[untyped, untyped] options) -> untyped
+  end
+
+  class Block
+    MIN_WIDTH: untyped
+    MIN_HEIGHT: untyped
+    MARGIN: Integer
+    self.@mixin_room_module: nil
+    @floor: Floor
+    @shape: :horizontal | :vertical
+    @separated: bool
+
+    def self.set_mixin_room_module: (untyped mod) -> untyped
+    def self.remove_mixin_room_module: -> nil
+    attr_reader x: Complex | Float | Integer | Rational
+    attr_reader y: Complex | Float | Integer | Rational
+    attr_reader width: untyped
+    attr_reader height: untyped
+    attr_reader upper_left: Block?
+    attr_reader lower_right: Block?
+    attr_reader partition: nil
+    attr_reader room: Random
+    attr_reader parent: Block?
+    def initialize: (Floor floor, Complex | Float | Integer | Rational x, Complex | Float | Integer | Rational y, untyped width, untyped height, ?Block? parent) -> void
+    def separate: -> bool
+    def unify: -> false
+    def separatable?: -> false
+    def separated?: -> bool
+    def find_ancestor: (untyped other) -> Block?
+    def brother: -> Block?
+    def neighbors: -> Array[untyped]
+    def include?: (untyped x, nil y) -> false
+    def neighborhood_xy: -> Array[untyped]
+    def horizontal?: -> bool
+    def vertical?: -> bool
+    def generation: -> Integer
+    def flatten: -> Array[untyped]
+    def put_room: (?nil randomizer_or_room) -> bool
+    def has_room?: -> bool
+    def suitable?: (Random room) -> untyped
+
+    private
+    def mixin_room_module: -> untyped
+    def create_room: (untyped width, untyped height) -> untyped
+    def horizontal_separate: -> Block
+    def vertical_separate: -> Block
+
+    module RoomInitializer
+      def initialize: -> void
+    end
+  end
+
+  class Dungeon
+    @randomizer: Random
+
+    attr_accessor width: untyped
+    attr_accessor height: untyped
+    attr_accessor min_room_number: untyped
+    attr_accessor max_room_number: untyped
+    attr_accessor min_room_width: untyped
+    attr_accessor min_room_height: untyped
+    attr_accessor max_room_width: untyped
+    attr_accessor max_room_height: untyped
+    attr_accessor block_split_factor: untyped
+    def initialize: (?Hash[untyped, untyped] options) -> void
+    def create_floor: (?nil mixin_floor_module, ?nil mixin_room_module) -> untyped
+    def generate_random_floor: (?nil mixin_floor_module, ?nil mixin_room_module) -> untyped
+
+    class Config
+    end
+
+    module FloorInitializer
+      def initialize: -> void
+    end
+  end
+
+  class FloorError < StandardError
+  end
+
+  class TrySeparateLimitError < FloorError
+  end
+
+  class Floor
+    TRY_SEPARATE_LIMIT: Integer
+    @root_block: Block
+    @base_map: untyped
+    @all_rooms: Array[untyped]
+
+    attr_reader dungeon: untyped
+    attr_reader width: bot
+    def width: -> untyped
+    attr_reader height: bot
+    def height: -> untyped
+    attr_reader min_room_width: untyped
+    attr_reader min_room_height: untyped
+    attr_reader max_room_width: untyped
+    attr_reader max_room_height: untyped
+    def initialize: (untyped d, untyped w, untyped h, untyped min_rw, untyped min_rh, untyped max_rw, untyped max_rh) -> void
+    def []: (untyped x, untyped y) -> untyped
+    def all_blocks: -> Array[untyped]
+    def all_rooms: -> Array[untyped]
+    def each_line: -> untyped
+    def each_tile: -> untyped
+    def all_room_tiles_xy: -> Array[untyped]
+    def get_block: (untyped x, nil y, ?Block? from) -> Block?
+    def get_room: (untyped x, untyped y) -> Random?
+    def classify!: (?:rogue_like `type`) -> untyped
+    def to_s: -> String
+    def fill_floor_by_wall: (untyped w, untyped h) -> untyped
+    def generate_random_room: (untyped r_min, untyped r_max, untyped factor, untyped randomizer) -> Floor
+    def connect_rooms: (?nil randomizer) -> Array[untyped]
+    def apply_rooms_to_map: -> untyped
+    def separate_blocks: (untyped r_min, untyped r_max, untyped factor, untyped randomizer) -> Floor
+
+    private
+    def do_separate?: (Block block, untyped factor, untyped randomizer) -> bool
+
+    class Config
+    end
+  end
+
+  class MapLayer
+    @map: Array[Array[untyped]]
+
+    def initialize: (Integer width, Integer height) -> void
+    def []: (Integer x, Integer y) -> nil
+    def []=: (Integer x, Integer? y, nil obj) -> nil
+    def width: -> Integer
+    def height: -> Integer
+    def each_line: -> Array[Array[untyped]]
+    def each_tile: ?{ (Integer, Integer, untyped) -> nil } -> Array[Array[untyped]]
+    def get_around: (Integer x, Integer y) -> MapLayer
+    def dup: -> Array[Array[untyped]]
+  end
+
+  class BaseMap < MapLayer
+    def initialize: (Integer width, Integer height, ?nil klass) -> void
+    def fill_rect: (untyped x1, untyped y1, untyped x2, untyped y2, untyped klass) -> Range
+    def apply_room: (untyped room, untyped klass) -> untyped
+    def apply_passage: (untyped rooms, untyped gate_klass, untyped pass_klass) -> Array[untyped]
+    def classify: (?:rogue_like `type`) -> BaseMap
+    def classify!: (?:rogue_like `type`) -> BaseMap
+  end
+
+  class Options
+    self.@keys: Array[untyped]
+    self.@validators: Hash[untyped, Hash[untyped, untyped]]
+    @config: untyped
+    @applied_config: Hash[untyped, untyped]
+    self.@config: bot
+    self.@applied_config: bot
+
+    def self.option: (untyped symbol, untyped klass, ?nil default, ?nil check) -> untyped
+    def initialize: (untyped config) -> void
+    def keys: -> untyped
+
+    private
+    def validate: (untyped config) -> untyped
+    def validate_keys: (untyped config) -> untyped
+    def validate_values: (untyped config) -> untyped
+  end
+
+  class Partition
+    @shape: untyped
+
+    attr_reader x: untyped
+    attr_reader y: untyped
+    attr_reader length: untyped
+    def initialize: (untyped x, untyped y, untyped length, untyped shape) -> void
+    def horizontal?: -> untyped
+    def vertical?: -> untyped
+  end
+
+  class Passage
+    @start: [untyped, untyped]
+    @end: [untyped, untyped]
+
+    def initialize: (untyped x1, untyped y1, untyped x2, untyped y2) -> void
+    def start_x: -> untyped
+    def start_y: -> untyped
+    def end_x: -> untyped
+    def end_y: -> untyped
+  end
+
+  class Room
+    attr_reader relative_x: untyped
+    attr_reader relative_y: untyped
+    attr_reader width: untyped
+    attr_reader height: untyped
+    attr_reader block: nil
+    attr_accessor connected_rooms: Hash[untyped, untyped]
+    attr_accessor all_pass: Array[untyped]
+    def initialize: (untyped width, untyped height) -> void
+    def x: -> nil
+    def y: -> nil
+    def relative_x=: (untyped x) -> untyped
+    def relative_y=: (untyped y) -> untyped
+    def get_all_abs_coordinate: -> Array[untyped]
+    def include?: (untyped _x, untyped _y) -> bool
+    def block=: (untyped block) -> nil
+    def set_random_coordinate: (?nil randomizer) -> [untyped, untyped]
+    def available_x_min: -> Integer
+    def available_x_max: -> untyped
+    def available_y_min: -> Integer
+    def available_y_max: -> untyped
+    def each_coordinate: { -> Array[untyped] } -> untyped
+    def generation: -> nil
+    def partition: -> nil
+    def brother: -> nil
+    def gate_coordinates: -> Array[untyped]
+    def all_connected_rooms: -> Array[untyped]
+    def create_passage: (?nil randomizer) -> Array[untyped]
+    def connectable_rooms: -> Array[untyped]
+    def select_partition: (bot room) -> untyped
+    def get_random_gate: (untyped partition, ?Random? randomizer) -> [untyped, untyped]
+    def create_passage_to: (bot room, ?Random? randomizer) -> true
+  end
+
+  module Tile
+    TYPE: {wall: Integer, flat: Integer, gate: Integer}
+    DEFAULT_TILE_CLASS: {wall: singleton(Wall), flat: singleton(Flat), gate: singleton(Gate), passage: singleton(Passage), binary_wall: singleton(BinaryWall), l_wall: singleton(LWall), r_wall: singleton(RWall), t_wall: singleton(TWall), b_wall: singleton(BWall), chipped_1: singleton(Chipped1), chipped_2: singleton(Chipped2), chipped_3: singleton(Chipped3), chipped_4: singleton(Chipped4), chipped_6: singleton(Chipped6), chipped_7: singleton(Chipped7), chipped_8: singleton(Chipped8), chipped_9: singleton(Chipped9), chipped_13: singleton(Chipped13), chipped_16: singleton(Chipped16), chipped_17: singleton(Chipped17), chipped_18: singleton(Chipped18), chipped_19: singleton(Chipped19), chipped_24: singleton(Chipped24), chipped_26: singleton(Chipped26), chipped_27: singleton(Chipped27), chipped_28: singleton(Chipped28), chipped_29: singleton(Chipped29), chipped_34: singleton(Chipped34), chipped_37: singleton(Chipped37), chipped_38: singleton(Chipped38), chipped_39: singleton(Chipped39), chipped_46: singleton(Chipped46), chipped_48: singleton(Chipped48), chipped_49: singleton(Chipped49), chipped_67: singleton(Chipped67), chipped_68: singleton(Chipped68), chipped_79: singleton(Chipped79), chipped_137: singleton(Chipped137), chipped_138: singleton(Chipped138), chipped_139: singleton(Chipped139), chipped_167: singleton(Chipped167), chipped_168: singleton(Chipped168), chipped_179: singleton(Chipped179), chipped_246: singleton(Chipped246), chipped_248: singleton(Chipped248), chipped_249: singleton(Chipped249), chipped_267: singleton(Chipped267), chipped_268: singleton(Chipped268), chipped_279: singleton(Chipped279), chipped_348: singleton(Chipped348), chipped_349: singleton(Chipped349), chipped_379: singleton(Chipped379), chipped_468: singleton(Chipped468), chipped_1379: singleton(Chipped1379), chipped_2468: singleton(Chipped2468)}
+    extend ModuleMethods
+
+    module ModuleMethods
+      def classify: (untyped tiles, untyped `type`) -> untyped
+      def wall: -> untyped
+      def flat: -> untyped
+      def gate: -> untyped
+      def passage: -> untyped
+    end
+
+    class BaseTile
+      def self.register_type: (:b_wall | :binary_wall | :chipped_1 | :chipped_13 | :chipped_137 | :chipped_1379 | :chipped_138 | :chipped_139 | :chipped_16 | :chipped_167 | :chipped_168 | :chipped_17 | :chipped_179 | :chipped_18 | :chipped_19 | :chipped_2 | :chipped_24 | :chipped_246 | :chipped_2468 | :chipped_248 | :chipped_249 | :chipped_26 | :chipped_267 | :chipped_268 | :chipped_27 | :chipped_279 | :chipped_28 | :chipped_29 | :chipped_3 | :chipped_34 | :chipped_348 | :chipped_349 | :chipped_37 | :chipped_379 | :chipped_38 | :chipped_39 | :chipped_4 | :chipped_46 | :chipped_468 | :chipped_48 | :chipped_49 | :chipped_6 | :chipped_67 | :chipped_68 | :chipped_7 | :chipped_79 | :chipped_8 | :chipped_9 | :flat | :gate | :l_wall | :l_wall_b_corner | :l_wall_t_corner | :passage | :r_wall | :r_wall_t_corner | :t_wall | :wall symbol) -> (:b_wall | :binary_wall | :chipped_1 | :chipped_13 | :chipped_137 | :chipped_1379 | :chipped_138 | :chipped_139 | :chipped_16 | :chipped_167 | :chipped_168 | :chipped_17 | :chipped_179 | :chipped_18 | :chipped_19 | :chipped_2 | :chipped_24 | :chipped_246 | :chipped_2468 | :chipped_248 | :chipped_249 | :chipped_26 | :chipped_267 | :chipped_268 | :chipped_27 | :chipped_279 | :chipped_28 | :chipped_29 | :chipped_3 | :chipped_34 | :chipped_348 | :chipped_349 | :chipped_37 | :chipped_379 | :chipped_38 | :chipped_39 | :chipped_4 | :chipped_46 | :chipped_468 | :chipped_48 | :chipped_49 | :chipped_6 | :chipped_67 | :chipped_68 | :chipped_7 | :chipped_79 | :chipped_8 | :chipped_9 | :flat | :gate | :l_wall | :l_wall_b_corner | :l_wall_t_corner | :passage | :r_wall | :r_wall_t_corner | :t_wall | :wall)
+      def self.register_sign: (String sign) -> String
+      def self.walkable: (bool `bool`) -> bool
+      def type: -> untyped
+      def type_is?: (untyped symbol) -> untyped
+      def sign: -> untyped
+      def to_s: -> untyped
+      def walkable?: -> untyped
+    end
+
+    class Wall < BaseTile
+      self.@type: :b_wall | :binary_wall | :chipped_1 | :chipped_13 | :chipped_137 | :chipped_1379 | :chipped_138 | :chipped_139 | :chipped_16 | :chipped_167 | :chipped_168 | :chipped_17 | :chipped_179 | :chipped_18 | :chipped_19 | :chipped_2 | :chipped_24 | :chipped_246 | :chipped_2468 | :chipped_248 | :chipped_249 | :chipped_26 | :chipped_267 | :chipped_268 | :chipped_27 | :chipped_279 | :chipped_28 | :chipped_29 | :chipped_3 | :chipped_34 | :chipped_348 | :chipped_349 | :chipped_37 | :chipped_379 | :chipped_38 | :chipped_39 | :chipped_4 | :chipped_46 | :chipped_468 | :chipped_48 | :chipped_49 | :chipped_6 | :chipped_67 | :chipped_68 | :chipped_7 | :chipped_79 | :chipped_8 | :chipped_9 | :flat | :gate | :l_wall | :l_wall_b_corner | :l_wall_t_corner | :passage | :r_wall | :r_wall_t_corner | :t_wall | :wall
+      self.@sign: String
+      self.@walkable: bool
+    end
+
+    class Flat < BaseTile
+      self.@type: :b_wall | :binary_wall | :chipped_1 | :chipped_13 | :chipped_137 | :chipped_1379 | :chipped_138 | :chipped_139 | :chipped_16 | :chipped_167 | :chipped_168 | :chipped_17 | :chipped_179 | :chipped_18 | :chipped_19 | :chipped_2 | :chipped_24 | :chipped_246 | :chipped_2468 | :chipped_248 | :chipped_249 | :chipped_26 | :chipped_267 | :chipped_268 | :chipped_27 | :chipped_279 | :chipped_28 | :chipped_29 | :chipped_3 | :chipped_34 | :chipped_348 | :chipped_349 | :chipped_37 | :chipped_379 | :chipped_38 | :chipped_39 | :chipped_4 | :chipped_46 | :chipped_468 | :chipped_48 | :chipped_49 | :chipped_6 | :chipped_67 | :chipped_68 | :chipped_7 | :chipped_79 | :chipped_8 | :chipped_9 | :flat | :gate | :l_wall | :l_wall_b_corner | :l_wall_t_corner | :passage | :r_wall | :r_wall_t_corner | :t_wall | :wall
+      self.@sign: String
+      self.@walkable: bool
+    end
+
+    class Gate < Flat
+    end
+
+    class BinaryWall < Wall
+    end
+
+    class Passage < Flat
+    end
+
+    class LWall < Wall
+    end
+
+    class LWallTCorner < Wall
+    end
+
+    class LWallBCorner < Wall
+    end
+
+    class RWall < Wall
+    end
+
+    class RWallTCorner < Wall
+    end
+
+    class RWallBCorner < Wall
+    end
+
+    class TWall < Wall
+    end
+
+    class BWall < Wall
+    end
+
+    class Chipped1 < Wall
+    end
+
+    class Chipped2 < Wall
+    end
+
+    class Chipped3 < Wall
+    end
+
+    class Chipped4 < Wall
+    end
+
+    class Chipped6 < Wall
+    end
+
+    class Chipped7 < Wall
+    end
+
+    class Chipped8 < Wall
+    end
+
+    class Chipped9 < Wall
+    end
+
+    class Chipped13 < Wall
+    end
+
+    class Chipped16 < Wall
+    end
+
+    class Chipped17 < Wall
+    end
+
+    class Chipped18 < Wall
+    end
+
+    class Chipped19 < Wall
+    end
+
+    class Chipped24 < Wall
+    end
+
+    class Chipped26 < Wall
+    end
+
+    class Chipped27 < Wall
+    end
+
+    class Chipped28 < Wall
+    end
+
+    class Chipped29 < Wall
+    end
+
+    class Chipped34 < Wall
+    end
+
+    class Chipped37 < Wall
+    end
+
+    class Chipped38 < Wall
+    end
+
+    class Chipped39 < Wall
+    end
+
+    class Chipped46 < Wall
+    end
+
+    class Chipped48 < Wall
+    end
+
+    class Chipped49 < Wall
+    end
+
+    class Chipped67 < Wall
+    end
+
+    class Chipped68 < Wall
+    end
+
+    class Chipped79 < Wall
+    end
+
+    class Chipped137 < Wall
+    end
+
+    class Chipped138 < Wall
+    end
+
+    class Chipped139 < Wall
+    end
+
+    class Chipped167 < Wall
+    end
+
+    class Chipped168 < Wall
+    end
+
+    class Chipped179 < Wall
+    end
+
+    class Chipped246 < Wall
+    end
+
+    class Chipped248 < Wall
+    end
+
+    class Chipped249 < Wall
+    end
+
+    class Chipped267 < Wall
+    end
+
+    class Chipped268 < Wall
+    end
+
+    class Chipped279 < Wall
+    end
+
+    class Chipped348 < Wall
+    end
+
+    class Chipped349 < Wall
+    end
+
+    class Chipped379 < Wall
+    end
+
+    class Chipped468 < Wall
+    end
+
+    class Chipped1379 < Wall
+    end
+
+    class Chipped2468 < Wall
+    end
+  end
+
+  class TileManager
+    self.@class_map: Hash[untyped, untyped]?
+
+    def self.set_tile_class: (untyped class_map) -> [untyped, untyped]
+    def self.class_map: -> Hash[untyped, untyped]
+    def self.clear_class_map: -> nil
+  end
+
+  class BinaryTileManager < TileManager
+    def self.classify: (untyped tiles) -> untyped
+  end
+
+  class DetailedTileManager < TileManager
+    self.@pattern_tile_map: untyped
+
+    def self.classify: (untyped tiles) -> untyped
+    def self.get_3x3_tile_pattern: (untyped tiles) -> Integer
+    def self.pattern_tile_map: -> untyped
+  end
+
+  class RogueLikeTileManager < TileManager
+    self.@pattern_tile_map: Hash[Integer, untyped]
+
+    def self.classify: (untyped tiles) -> untyped
+    def self.get_3x3_tile_pattern: (untyped tiles) -> Integer
+    def self.pattern_tile_map: -> Hash[Integer, untyped]
+  end
+end
