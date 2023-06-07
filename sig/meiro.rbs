@@ -9,7 +9,7 @@ module Meiro
   extend ModuleMethods
 
   module ModuleMethods
-    def create_dungeon: (?Hash[untyped, untyped] options) -> untyped
+    def create_dungeon: (?Hash[Symbol, Integer | Float] options) -> Dungeon
   end
 
   class Block
