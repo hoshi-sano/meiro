@@ -1,6 +1,11 @@
 # TypeProf 0.21.2
 
 # Classes
+class Object
+  private
+  def put_and_return_room: (untyped block) -> untyped
+end
+
 module Meiro
   FLOOR_MIN_WIDTH: Integer
   FLOOR_MIN_HEIGHT: Integer
@@ -19,24 +24,23 @@ module Meiro
     MARGIN: Integer
     self.@mixin_room_module: nil
     @floor: Floor
-    @shape: :horizontal | :vertical
     @separated: bool
 
     def self.set_mixin_room_module: (untyped mod) -> untyped
     def self.remove_mixin_room_module: -> nil
     attr_reader x: Complex | Float | Integer | Rational
     attr_reader y: Complex | Float | Integer | Rational
-    attr_reader width: untyped
-    attr_reader height: untyped
+    attr_reader width: Complex | Float | Integer | Rational
+    attr_reader height: Complex | Float | Integer | Rational
     attr_reader upper_left: Block?
     attr_reader lower_right: Block?
-    attr_reader partition: nil
+    attr_reader partition: Partition?
     attr_reader room: Random
-    attr_reader parent: Block?
-    def initialize: (Floor floor, Complex | Float | Integer | Rational x, Complex | Float | Integer | Rational y, untyped width, untyped height, ?Block? parent) -> void
+    attr_accessor parent: Block?
+    def initialize: (Floor floor, Complex | Float | Integer | Rational x, Complex | Float | Integer | Rational y, Complex | Float | Integer | Rational width, Complex | Float | Integer | Rational height, ?Block? parent) -> void
     def separate: -> bool
     def unify: -> false
-    def separatable?: -> false
+    def separatable?: -> bool
     def separated?: -> bool
     def find_ancestor: (untyped other) -> Block?
     def brother: -> Block?
@@ -49,13 +53,16 @@ module Meiro
     def flatten: -> Array[untyped]
     def put_room: (?nil randomizer_or_room) -> bool
     def has_room?: -> bool
-    def suitable?: (Random room) -> untyped
+    def suitable?: (Random room) -> bool
 
     private
     def mixin_room_module: -> untyped
     def create_room: (untyped width, untyped height) -> untyped
+
+    public
     def horizontal_separate: -> Block
     def vertical_separate: -> Block
+    attr_accessor shape: :horizontal | :vertical
 
     module RoomInitializer
       def initialize: -> void
@@ -94,8 +101,6 @@ module Meiro
 
   class Floor
     TRY_SEPARATE_LIMIT: Integer
-    @root_block: Block
-    @base_map: untyped
     @all_rooms: Array[untyped]
 
     attr_reader dungeon: untyped
@@ -103,10 +108,10 @@ module Meiro
     def width: -> untyped
     attr_reader height: bot
     def height: -> untyped
-    attr_reader min_room_width: untyped
-    attr_reader min_room_height: untyped
-    attr_reader max_room_width: untyped
-    attr_reader max_room_height: untyped
+    attr_accessor min_room_width: untyped
+    attr_accessor min_room_height: untyped
+    attr_accessor max_room_width: untyped
+    attr_accessor max_room_height: untyped
     def initialize: (untyped d, untyped w, untyped h, untyped min_rw, untyped min_rh, untyped max_rw, untyped max_rh) -> void
     def []: (untyped x, untyped y) -> untyped
     def all_blocks: -> Array[untyped]
@@ -123,17 +128,15 @@ module Meiro
     def connect_rooms: (?nil randomizer) -> Array[untyped]
     def apply_rooms_to_map: -> untyped
     def separate_blocks: (untyped r_min, untyped r_max, untyped factor, untyped randomizer) -> Floor
-
-    private
     def do_separate?: (Block block, untyped factor, untyped randomizer) -> bool
+    attr_accessor root_block: Block
+    attr_accessor base_map: untyped
 
     class Config
     end
   end
 
   class MapLayer
-    @map: Array[Array[untyped]]
-
     def initialize: (Integer width, Integer height) -> void
     def []: (Integer x, Integer y) -> nil
     def []=: (Integer x, Integer? y, nil obj) -> nil
@@ -143,6 +146,7 @@ module Meiro
     def each_tile: ?{ (Integer, Integer, untyped) -> nil } -> Array[Array[untyped]]
     def get_around: (Integer x, Integer y) -> MapLayer
     def dup: -> Array[Array[untyped]]
+    attr_accessor map: Array[Array[untyped]]
   end
 
   class BaseMap < MapLayer
@@ -152,6 +156,7 @@ module Meiro
     def apply_passage: (untyped rooms, untyped gate_klass, untyped pass_klass) -> Array[untyped]
     def classify: (?:rogue_like `type`) -> BaseMap
     def classify!: (?:rogue_like `type`) -> BaseMap
+    attr_accessor map: Array[Array[untyped]]
   end
 
   class Options
@@ -173,41 +178,41 @@ module Meiro
   end
 
   class Partition
-    @shape: untyped
+    @shape: :horizontal | :vertical
 
-    attr_reader x: untyped
-    attr_reader y: untyped
-    attr_reader length: untyped
-    def initialize: (untyped x, untyped y, untyped length, untyped shape) -> void
-    def horizontal?: -> untyped
-    def vertical?: -> untyped
+    attr_reader x: Complex | Float | Integer | Rational
+    attr_reader y: Complex | Float | Integer | Rational
+    attr_reader length: Complex | Float | Integer | Rational
+    def initialize: (Complex | Float | Integer | Rational x, Complex | Float | Integer | Rational y, Complex | Float | Integer | Rational length, :horizontal | :vertical shape) -> void
+    def horizontal?: -> bool
+    def vertical?: -> bool
   end
 
   class Passage
-    @start: [untyped, untyped]
-    @end: [untyped, untyped]
+    @start: [Integer, Integer]
+    @end: [Integer, Integer]
 
-    def initialize: (untyped x1, untyped y1, untyped x2, untyped y2) -> void
-    def start_x: -> untyped
-    def start_y: -> untyped
-    def end_x: -> untyped
-    def end_y: -> untyped
+    def initialize: (Integer x1, Integer y1, Integer x2, Integer y2) -> void
+    def start_x: -> Integer
+    def start_y: -> Integer
+    def end_x: -> Integer
+    def end_y: -> Integer
   end
 
   class Room
     attr_reader relative_x: untyped
     attr_reader relative_y: untyped
-    attr_reader width: untyped
-    attr_reader height: untyped
+    attr_reader width: Integer
+    attr_reader height: Integer
     attr_reader block: nil
     attr_accessor connected_rooms: Hash[untyped, untyped]
     attr_accessor all_pass: Array[untyped]
-    def initialize: (untyped width, untyped height) -> void
+    def initialize: (Integer width, Integer height) -> void
     def x: -> nil
     def y: -> nil
     def relative_x=: (untyped x) -> untyped
     def relative_y=: (untyped y) -> untyped
-    def get_all_abs_coordinate: -> Array[untyped]
+    def get_all_abs_coordinate: -> Array[Array[Array[untyped]]]
     def include?: (untyped _x, untyped _y) -> bool
     def block=: (untyped block) -> nil
     def set_random_coordinate: (?nil randomizer) -> [untyped, untyped]
@@ -215,7 +220,7 @@ module Meiro
     def available_x_max: -> untyped
     def available_y_min: -> Integer
     def available_y_max: -> untyped
-    def each_coordinate: { -> Array[untyped] } -> untyped
+    def each_coordinate: { (untyped, untyped) -> Array[Array[untyped]] } -> Integer
     def generation: -> nil
     def partition: -> nil
     def brother: -> nil
@@ -463,4 +468,20 @@ module Meiro
     def self.get_3x3_tile_pattern: (untyped tiles) -> Integer
     def self.pattern_tile_map: -> Hash[Integer, untyped]
   end
+end
+
+class C1
+  def self.new: -> Integer
+              | -> Integer
+              | -> Integer
+end
+
+class C0
+  def self.new: -> Integer
+              | -> Integer
+              | -> Integer
+end
+
+class C2
+  def self.new: -> Integer
 end
