@@ -1,3 +1,5 @@
+# typed: strict
+
 require "meiro/version"
 require "meiro/options"
 require "meiro/dungeon"
